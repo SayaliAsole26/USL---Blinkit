@@ -61,8 +61,13 @@ class UslItem(Base):
     match_status: Mapped[str] = mapped_column(String(32), default="queued", index=True)
 
     user: Mapped["User"] = relationship(back_populates="usl_items")
-    metadata_row: Mapped["UslItemMetadata | None"] = relationship(back_populates="item", uselist=False)
+    metadata_row: Mapped["UslItemMetadata | None"] = relationship(
+        back_populates="item", uselist=False, cascade="all, delete-orphan"
+    )
     catalog_matches: Mapped[list["CatalogMatch"]] = relationship(back_populates="item", cascade="all, delete-orphan")
+    availability_watches: Mapped[list["AvailabilityWatch"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class CatalogProduct(Base):
@@ -174,3 +179,5 @@ class AvailabilityWatch(Base):
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    item: Mapped["UslItem"] = relationship(back_populates="availability_watches")

@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from app.db.models import UslItemMetadata
 from tests.conftest import OTHER_USER_ID, TEST_USER_ID, auth_headers
 
 
@@ -119,6 +122,26 @@ def test_delete_usl_item(client):
         headers=auth_headers(),
     )
     assert get_resp.status_code == 404
+
+
+def test_delete_usl_item_with_metadata(client, db_session):
+    client.post(
+        "/v1/users/location",
+        json={"city": "Bangalore", "state": "Karnataka", "pincode": "560001"},
+        headers=auth_headers(),
+    )
+    created = client.post(
+        "/v1/usl/items",
+        json={"raw_intent": "Sunscreen"},
+        headers=auth_headers(),
+    ).json()
+
+    db_session.add(UslItemMetadata(item_id=UUID(created["item_id"]), shortlist_size=3))
+    db_session.commit()
+
+    deleted = client.delete(f"/v1/usl/items/{created['item_id']}", headers=auth_headers())
+    assert deleted.status_code == 204
+    assert db_session.get(UslItemMetadata, UUID(created["item_id"])) is None
 
 
 def test_usl_item_user_scoping(client):
