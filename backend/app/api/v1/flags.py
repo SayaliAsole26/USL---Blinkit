@@ -10,4 +10,6 @@ def get_feature_flags(settings: Settings = Depends(get_settings)):
     return {
         "usl_enabled": settings.usl_enabled,
         "usl_checkout_recommendations": settings.usl_checkout_recommendations,
+        "experiments_enabled": settings.experiments_enabled,
+        "rollout_percentage": settings.rollout_percentage,
     }

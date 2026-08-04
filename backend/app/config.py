@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     run_migrations_on_startup: bool = False
     seed_catalog_on_startup: bool = False
 
+    experiments_enabled: bool = True
+    explanation_cache_ttl_seconds: int = 86400
+    rollout_percentage: int = 100
+
     @field_validator("database_url")
     @classmethod
     def _normalize_database_url(cls, value: str) -> str:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import uuid
 from datetime import datetime, timezone
 
@@ -10,10 +11,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import Settings
-from app.db.models import CatalogProduct, RecommendationEvent, UslItem
+from app.db.models import CatalogProduct, RecommendationEvent, UserLocation, UslItem
 from app.integrations.mock_blinkit import get_cart_adapter
 from app.pipeline.path_b import PathBProcessor
 from app.schemas.recommendations import RecommendationAction
+from app.services.checkout_cache import checkout_cache_key, read_checkout_cache, write_checkout_cache
 
 
 class RecommendationService:
@@ -30,6 +32,21 @@ class RecommendationService:
     ) -> dict:
         if not self.settings.usl_checkout_recommendations:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Checkout recommendations disabled")
+
+        if not self._is_in_rollout(user_id):
+            return {
+                "checkout_session_id": checkout_session_id,
+                "recommendations": [],
+                "shortlist_size": 0,
+                "latency_ms": 0,
+            }
+
+        pincode = self._get_pincode(user_id)
+        cache_key = checkout_cache_key(user_id, pincode, cart_sku_ids)
+        cached = read_checkout_cache(self.settings, cache_key)
+        if cached:
+            cached["checkout_session_id"] = checkout_session_id
+            return cached
 
         result = PathBProcessor(self.db, self.settings).process(
             user_id,
@@ -50,7 +67,21 @@ class RecommendationService:
             )
 
         self.db.commit()
+        write_checkout_cache(self.settings, cache_key, result)
         return result
+
+    def _get_pincode(self, user_id: uuid.UUID) -> str:
+        location = self.db.get(UserLocation, user_id)
+        return location.pincode if location else "560001"
+
+    def _is_in_rollout(self, user_id: uuid.UUID) -> bool:
+        pct = max(0, min(100, self.settings.rollout_percentage))
+        if pct >= 100:
+            return True
+        if pct <= 0:
+            return False
+        bucket = int(hashlib.sha256(str(user_id).encode()).hexdigest()[:8], 16) % 100
+        return bucket < pct
 
     def handle_action(
         self,

@@ -82,6 +82,8 @@ class CheckoutRulesEngine:
                 continue
             if personalization and sku_id in personalization.capped_sku_ids:
                 continue
+            if personalization and sku_id in personalization.recently_shown_sku_ids:
+                continue
 
             category = top_match.get("category") or row.get("category") or "unknown"
 

@@ -30,7 +30,11 @@ def disable_async_intent_by_default(monkeypatch):
     monkeypatch.setattr("app.services.usl_service.enqueue_intent_processing", noop)
     monkeypatch.setattr("app.services.intent_queue.enqueue_intent_processing", noop)
     monkeypatch.setattr("app.services.intent_queue.enqueue_rematch_for_user", lambda *args, **kwargs: 0)
+    monkeypatch.setenv("CHECKOUT_CACHE_TTL_SECONDS", "0")
+    get_settings.cache_clear()
     get_cart_adapter()._carts.clear()
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.fixture
@@ -50,6 +54,7 @@ def db_engine():
         Base.metadata.tables["catalog_matches"],
         Base.metadata.tables["recommendation_events"],
         Base.metadata.tables["purchase_history"],
+        Base.metadata.tables["availability_watches"],
     ]
     Base.metadata.create_all(bind=engine, tables=tables)
     yield engine

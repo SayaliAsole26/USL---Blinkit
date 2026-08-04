@@ -82,6 +82,15 @@ export default function UslHome({ location, onContinueShopping }: Props) {
     await loadItems();
   }
 
+  async function handleWatch(itemId: string) {
+    try {
+      const result = await api.watchItemAvailability(itemId);
+      alert(result.message || "We'll notify you when this item is available.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not set availability alert.");
+    }
+  }
+
   async function handleSave(
     itemId: string,
     updates: {
@@ -158,6 +167,7 @@ export default function UslHome({ location, onContinueShopping }: Props) {
                 available={isAvailable(item)}
                 onEdit={setEditingItem}
                 onDelete={handleDelete}
+                onWatch={handleWatch}
               />
             ))}
           </section>

@@ -5,6 +5,7 @@ type Props = {
   item: UslItemResponse;
   onEdit: (item: UslItemResponse) => void;
   onDelete: (itemId: string) => void;
+  onWatch?: (itemId: string) => void;
   available?: boolean;
 };
 
@@ -12,8 +13,16 @@ function formatMatchStatus(status: MatchStatus): string {
   return status.replace(/_/g, " ");
 }
 
-export default function UslItemCard({ item, onEdit, onDelete, available = true }: Props) {
+function formatEventDate(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+export default function UslItemCard({ item, onEdit, onDelete, onWatch, available = true }: Props) {
   const topMatch: CatalogMatchResponse | undefined = item.catalog_matches[0];
+  const eventLabel = formatEventDate(item.event_date);
 
   if (!available) {
     return (
@@ -28,8 +37,15 @@ export default function UslItemCard({ item, onEdit, onDelete, available = true }
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold">{item.raw_intent}</p>
           <p className="text-xs text-on-surface-variant">Unavailable at your location</p>
+          {eventLabel && (
+            <p className="mt-0.5 text-xs text-ai-text">Event · {eventLabel}</p>
+          )}
         </div>
-        <button type="button" className="rounded-lg border border-outline-variant bg-surface-container-high px-4 py-1.5 text-xs font-bold text-on-surface-variant">
+        <button
+          type="button"
+          onClick={() => onWatch?.(item.item_id)}
+          className="rounded-lg border border-outline-variant bg-surface-container-high px-4 py-1.5 text-xs font-bold text-on-surface-variant active:scale-95"
+        >
           Notify Me
         </button>
       </div>
@@ -50,6 +66,9 @@ export default function UslItemCard({ item, onEdit, onDelete, available = true }
         <p className="text-xs text-on-surface-variant">
           {topMatch?.product_name ?? item.normalized_name ?? formatMatchStatus(item.match_status)}
         </p>
+        {eventLabel && (
+          <p className="mt-0.5 text-xs font-medium text-ai-text">Event · {eventLabel}</p>
+        )}
         {topMatch?.price != null && (
           <div className="mt-1 flex items-center gap-2">
             <span className="text-sm font-bold">₹{topMatch.price}</span>

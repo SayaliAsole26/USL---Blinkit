@@ -161,3 +161,16 @@ class PurchaseHistory(Base):
     order_id: Mapped[str | None] = mapped_column(String(128))
     source: Mapped[str] = mapped_column(String(32), default="order")
     purchased_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class AvailabilityWatch(Base):
+    __tablename__ = "availability_watches"
+
+    watch_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.user_id", ondelete="CASCADE"))
+    item_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("usl_items.item_id", ondelete="CASCADE"))
+    sku_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    pincode: Mapped[str] = mapped_column(String(10), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -116,6 +116,10 @@ export const api = {
   updateItem: (itemId: string, body: UslItemUpdate) =>
     request<UslItemResponse>(`/v1/usl/items/${itemId}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteItem: (itemId: string) => request<void>(`/v1/usl/items/${itemId}`, { method: "DELETE" }),
+  watchItemAvailability: (itemId: string) =>
+    request<AvailabilityWatchResponse>(`/v1/usl/items/${itemId}/watch`, { method: "POST" }),
+  getAvailabilityNotifications: () =>
+    request<AvailabilityNotificationsResponse>("/v1/usl/availability-notifications"),
   getItem: (itemId: string) => request<UslItemDetailResponse>(`/v1/usl/items/${itemId}`),
   getAdminMatches: () => request<AdminMatchesResponse>("/v1/admin/matches"),
   getPipelineMetrics: () => request<PipelineMetricsResponse>("/v1/admin/pipeline/metrics"),
@@ -256,6 +260,26 @@ export type UslItemListResponse = {
 export type FeatureFlagsResponse = {
   usl_enabled: boolean;
   usl_checkout_recommendations: boolean;
+  experiments_enabled?: boolean;
+  rollout_percentage?: number;
+};
+
+export type AvailabilityWatchResponse = {
+  watch_id: string;
+  item_id: string;
+  sku_id: string;
+  pincode: string;
+  message: string;
+};
+
+export type AvailabilityNotificationsResponse = {
+  count: number;
+  notifications: Array<{
+    watch_id: string;
+    item_id: string;
+    sku_id: string;
+    message: string;
+  }>;
 };
 
 export type CatalogProduct = {

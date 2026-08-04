@@ -1,11 +1,13 @@
 """LLM stage — Groq integration with template fallback."""
 
+import hashlib
 import json
 from typing import Any
 
 from groq import Groq
 
 from app.config import Settings
+from app.services.redis_client import get_redis_client
 
 
 class GroqLLMService:
@@ -44,8 +46,14 @@ class GroqLLMService:
             return self._fallback_intent(raw_intent)
 
     def generate_reason_text(self, reason_type: str, signals: dict[str, Any]) -> str:
+        cached = self._read_explanation_cache(reason_type, signals)
+        if cached:
+            return cached
+
         if not self._client:
-            return self._template_reason(reason_type, signals)
+            text = self._template_reason(reason_type, signals)
+            self._write_explanation_cache(reason_type, signals, text)
+            return text
 
         try:
             response = self._client.chat.completions.create(
@@ -61,9 +69,40 @@ class GroqLLMService:
                 max_tokens=120,
             )
             text = (response.choices[0].message.content or "").strip()
-            return text or self._template_reason(reason_type, signals)
+            text = text or self._template_reason(reason_type, signals)
         except Exception:
-            return self._template_reason(reason_type, signals)
+            text = self._template_reason(reason_type, signals)
+
+        self._write_explanation_cache(reason_type, signals, text)
+        return text
+
+    def _explanation_cache_key(self, reason_type: str, signals: dict[str, Any]) -> str:
+        product = signals.get("product_name", "")
+        digest = hashlib.sha256(json.dumps({"reason_type": reason_type, "product": product}, sort_keys=True).encode()).hexdigest()[:16]
+        return f"llm:explain:{reason_type}:{digest}"
+
+    def _read_explanation_cache(self, reason_type: str, signals: dict[str, Any]) -> str | None:
+        if self.settings.explanation_cache_ttl_seconds <= 0:
+            return None
+        try:
+            client = get_redis_client(self.settings)
+            raw = client.get(self._explanation_cache_key(reason_type, signals))
+            return raw.decode() if isinstance(raw, bytes) else raw
+        except Exception:
+            return None
+
+    def _write_explanation_cache(self, reason_type: str, signals: dict[str, Any], text: str) -> None:
+        if self.settings.explanation_cache_ttl_seconds <= 0 or not text:
+            return
+        try:
+            client = get_redis_client(self.settings)
+            client.setex(
+                self._explanation_cache_key(reason_type, signals),
+                self.settings.explanation_cache_ttl_seconds,
+                text,
+            )
+        except Exception:
+            pass
 
     def smoke_test(self) -> dict[str, Any]:
         result = self.parse_intent("Face Wash")

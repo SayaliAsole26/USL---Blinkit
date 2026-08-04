@@ -16,6 +16,7 @@ from app.services.checkout_dataset import CheckoutDatasetService
 from app.services.context_service import ContextService
 from app.services.pipeline_metrics import record_path_b_run
 from app.services.purchase_history_service import PurchaseHistoryService
+from app.services.experiment_service import ExperimentService
 from app.services.ranker_config import RankerConfigService
 from app.services.replenishment_service import ReplenishmentService
 
@@ -29,6 +30,7 @@ class PathBProcessor:
         self.purchase_history = PurchaseHistoryService(db)
         self.replenishment = ReplenishmentService(self.purchase_history, settings)
         self.rules = CheckoutRulesEngine()
+        self.experiments = ExperimentService(settings)
         self.ranker = RecommendationRanker(RankerConfigService(settings).get_weights())
         self.llm = GroqLLMService(settings)
         self.output = OutputService(max_output=settings.max_checkout_recommendations)
@@ -95,7 +97,8 @@ class PathBProcessor:
             max_shortlist=self.settings.max_checkout_shortlist,
         )
 
-        ranked = self.ranker.rank(shortlist, bundle.personalization)
+        ranker_weights = self.experiments.get_ranker_weights(user_id)
+        ranked = RecommendationRanker(ranker_weights).rank(shortlist, bundle.personalization)
 
         llm_targets = ranked[: self.settings.max_checkout_recommendations]
         reason_texts = self._build_reason_texts(llm_targets, bundle.cart_categories, context_signals)

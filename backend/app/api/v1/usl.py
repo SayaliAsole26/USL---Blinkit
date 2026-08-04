@@ -71,3 +71,43 @@ def delete_usl_item(
 ):
     UslService(db).delete_item(user.user_id, item_id)
     return Response(status_code=204)
+
+
+@router.post("/items/{item_id}/watch")
+def watch_item_availability(
+    item_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_usl_enabled),
+):
+    from fastapi import HTTPException
+
+    from app.db.models import UserLocation
+    from app.services.availability_watch_service import AvailabilityWatchService
+
+    location = db.get(UserLocation, user.user_id)
+    if not location:
+        raise HTTPException(status_code=400, detail="Set delivery location first")
+    try:
+        watch = AvailabilityWatchService(db).subscribe(user.user_id, item_id, location.pincode)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        "watch_id": str(watch.watch_id),
+        "item_id": str(watch.item_id),
+        "sku_id": watch.sku_id,
+        "pincode": watch.pincode,
+        "message": "We will notify you when this item is available",
+    }
+
+
+@router.get("/availability-notifications")
+def list_availability_notifications(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_usl_enabled),
+):
+    from app.services.availability_watch_service import AvailabilityWatchService
+
+    notifications = AvailabilityWatchService(db).check_and_notify(user.user_id)
+    return {"count": len(notifications), "notifications": notifications}

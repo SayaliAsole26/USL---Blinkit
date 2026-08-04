@@ -41,15 +41,22 @@ class ContextService:
     ) -> CheckoutContextBundle:
         now = when or datetime.now(timezone.utc)
         day = now.date()
-        cache_key = f"context:checkout:{user_id}:{pincode}:{day.isoformat()}"
+        upcoming_events = self._collect_upcoming_events(usl_rows, now)
 
-        cached = self._read_cache(cache_key)
+        cache_key = f"context:checkout:{user_id}:{pincode}:{day.isoformat()}"
+        cached = self._read_cache(cache_key) if self.settings.context_cache_ttl_seconds > 0 else None
         if cached:
-            return CheckoutContextBundle(**cached)
+            return CheckoutContextBundle(
+                season=cached["season"],
+                season_label=cached["season_label"],
+                weather=cached["weather"],
+                cart_categories=sorted(cart_categories),
+                upcoming_events=upcoming_events,
+                festival=cached.get("festival"),
+            )
 
         current_season = self.season.get_current_season(now)
         weather = self.weather.get_forecast(pincode, day)
-        upcoming_events = self._collect_upcoming_events(usl_rows, now)
 
         bundle = CheckoutContextBundle(
             season=current_season["id"],
@@ -60,7 +67,8 @@ class ContextService:
             festival=self.season.get_active_festival(now),
         )
 
-        self._write_cache(cache_key, bundle)
+        if self.settings.context_cache_ttl_seconds > 0:
+            self._write_cache(cache_key, bundle)
         return bundle
 
     def _collect_upcoming_events(self, usl_rows: list[dict], now: datetime) -> list[dict[str, Any]]:
