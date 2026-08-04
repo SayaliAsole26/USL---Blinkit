@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.v1.health import health_router
 from app.api.v1.router import api_router
@@ -25,6 +26,12 @@ if settings.cors_allow_vercel_previews:
     cors_middleware_kwargs["allow_origin_regex"] = settings.cors_origin_regex
 
 app.add_middleware(CORSMiddleware, **cors_middleware_kwargs)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
 
 app.include_router(health_router)
 app.include_router(api_router)

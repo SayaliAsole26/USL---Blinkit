@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import Settings, get_settings
+from app.data_paths import get_data_dir
 from app.services.purchase_history_service import PurchaseHistoryService
 
 
@@ -23,12 +24,15 @@ class ReplenishmentResult:
 
 
 def _cycles_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "replenishment-cycles.json"
+    return get_data_dir() / "replenishment-cycles.json"
 
 
 @lru_cache
 def _load_cycles() -> dict[str, Any]:
-    return json.loads(_cycles_path().read_text(encoding="utf-8"))
+    path = _cycles_path()
+    if not path.exists():
+        return {"default_cycle_days": 30, "categories": {}}
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 class ReplenishmentService:

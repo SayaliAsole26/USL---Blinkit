@@ -8,14 +8,19 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from app.data_paths import get_data_dir
+
 
 def _calendar_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "season-calendar.json"
+    return get_data_dir() / "season-calendar.json"
 
 
 @lru_cache
 def _load_calendar() -> dict[str, Any]:
-    return json.loads(_calendar_path().read_text(encoding="utf-8"))
+    path = _calendar_path()
+    if not path.exists():
+        return {"seasons": [{"id": "general", "name": "General", "months": list(range(1, 13))}], "festivals": []}
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 class SeasonProvider:

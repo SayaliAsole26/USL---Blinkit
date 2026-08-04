@@ -9,10 +9,11 @@ from pathlib import Path
 from typing import Any
 
 from app.config import Settings, get_settings
+from app.data_paths import get_data_dir
 
 
 def _weights_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "ranker-weights.json"
+    return get_data_dir() / "ranker-weights.json"
 
 
 @dataclass
