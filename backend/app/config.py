@@ -1,6 +1,14 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def normalize_database_url(url: str) -> str:
+    """Railway/Heroku expose postgres://; SQLAlchemy 2 requires postgresql://."""
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql://", 1)
+    return url
 
 
 class Settings(BaseSettings):
@@ -11,7 +19,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "USL Blinkit API"
-    app_version: str = "0.4.0"
+    app_version: str = "0.6.0"
     environment: str = "development"
 
     database_url: str = "postgresql://usl:usl@localhost:5432/usl"
@@ -36,6 +44,8 @@ class Settings(BaseSettings):
     meili_enabled: bool = True
 
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    cors_allow_vercel_previews: bool = True
+    cors_origin_regex: str = r"https://.*\.vercel\.app"
     jwt_secret: str = "dev-secret-change-in-production"
 
     usl_enabled: bool = True
@@ -45,10 +55,29 @@ class Settings(BaseSettings):
     max_checkout_recommendations: int = 5
     max_checkout_shortlist: int = 80
     checkout_cache_ttl_seconds: int = 300
+    context_cache_ttl_seconds: int = 300
+    weather_cache_ttl_seconds: int = 86400
+    event_window_days: int = 14
+
+    replenishment_due_threshold: float = 1.0
+    frequency_cap_days: int = 7
+    ranker_weights_json: str = ""
+
+    run_migrations_on_startup: bool = False
+    seed_catalog_on_startup: bool = False
+
+    @field_validator("database_url")
+    @classmethod
+    def _normalize_database_url(cls, value: str) -> str:
+        return normalize_database_url(value)
 
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment.lower() == "production"
 
 
 @lru_cache

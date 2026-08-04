@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Universal List Dashboard - Blinkit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#241a00",
+                    "surface": "#fcf9f8",
+                    "primary-fixed": "#8ffb87",
+                    "price-red": "#E74C3C",
+                    "secondary-container": "#ffcb13",
+                    "border-subtle": "#E8ECEF",
+                    "inverse-on-surface": "#f3f0ef",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#f9f4ff",
+                    "on-background": "#1b1b1b",
+                    "ai-text": "#6C5CE7",
+                    "surface-dim": "#dcd9d9",
+                    "primary": "#006714",
+                    "surface-bright": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#74dd6e",
+                    "on-secondary-container": "#6f5700",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#f2c000",
+                    "on-primary-fixed-variant": "#00530e",
+                    "inverse-surface": "#313030",
+                    "tertiary": "#523fcc",
+                    "surface-container-low": "#f6f3f2",
+                    "on-surface-variant": "#3f4a3c",
+                    "ai-surface": "#F0EDFF",
+                    "secondary-fixed": "#ffe08e",
+                    "surface-container-high": "#eae7e7",
+                    "on-surface": "#1b1b1b",
+                    "on-tertiary-fixed": "#160066",
+                    "surface-variant": "#e5e2e1",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#e4dfff",
+                    "surface-container": "#f0eded",
+                    "outline": "#6f7a6a",
+                    "on-primary-container": "#e0ffd7",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#74dd6e",
+                    "surface-tint": "#006e16",
+                    "tertiary-fixed-dim": "#c6bfff",
+                    "surface-gray": "#F4F6F8",
+                    "on-primary-fixed": "#002203",
+                    "tertiary-container": "#6b5be6",
+                    "outline-variant": "#becab7",
+                    "on-secondary-fixed-variant": "#584400",
+                    "secondary": "#755b00",
+                    "on-tertiary-fixed-variant": "#4029ba",
+                    "primary-container": "#0c831f",
+                    "background": "#fcf9f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "0.25rem",
+                    "margin-page": "1rem",
+                    "gutter-card": "0.75rem",
+                    "stack-lg": "1rem",
+                    "stack-md": "0.5rem"
+            },
+            "fontFamily": {
+                    "cta-text": ["Inter"],
+                    "badge-label": ["Inter"],
+                    "display-hero": ["Inter"],
+                    "body-primary": ["Inter"],
+                    "body-secondary": ["Inter"],
+                    "section-title": ["Inter"],
+                    "body-medium": ["Inter"],
+                    "price-display": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "cta-text": ["16px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "badge-label": ["11px", {"lineHeight": "14px", "fontWeight": "700"}],
+                    "display-hero": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-primary": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-secondary": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "section-title": ["16px", {"lineHeight": "20px", "fontWeight": "700"}],
+                    "body-medium": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "price-display": ["14px", {"lineHeight": "18px", "fontWeight": "700"}],
+                    "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .active-scale:active { transform: scale(0.96); transition: transform 0.15s ease; }
+        .nav-active-scale:active { transform: scale(0.95); transition: transform 0.2s ease; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen font-body-primary">
+<!-- Top AppBar -->
+<header class="sticky top-0 z-50 bg-surface flex justify-between items-center w-full px-margin-page h-14">
+<div class="flex items-center gap-stack-lg">
+<button class="active-scale">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary">My Universal List</h1>
+<span class="text-body-secondary text-on-surface-variant">All your needs, at one place</span>
+</div>
+</div>
+<button class="active-scale">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<main class="pb-24">
+<!-- Search and AI Insight Pill -->
+<section class="px-margin-page mt-stack-md">
+<div class="relative w-full mb-stack-lg">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-body-primary placeholder:text-on-surface-variant" placeholder="Search in your list" type="text"/>
+</div>
+<!-- AI Signal Pill -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-ai-surface text-ai-text rounded-full mb-stack-lg">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span class="text-badge-label font-badge-label uppercase tracking-wider">AI Categorized</span>
+</div>
+</section>
+<!-- Filter Chips -->
+<section class="flex overflow-x-auto px-margin-page gap-2 hide-scrollbar mb-stack-lg">
+<button class="flex-shrink-0 px-4 py-2 bg-primary text-on-primary rounded-full text-body-medium font-bold active-scale">
+                All (40)
+            </button>
+<button class="flex-shrink-0 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-body-medium font-medium active-scale">
+                Available on Blinkit (32)
+            </button>
+<button class="flex-shrink-0 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-body-medium font-medium active-scale">
+                Not Available (8)
+            </button>
+</section>
+<!-- Available on Blinkit Section -->
+<section class="px-margin-page mb-stack-lg">
+<div class="flex justify-between items-center mb-stack-md">
+<h2 class="text-section-title font-section-title text-on-surface">Available on Blinkit</h2>
+<button class="text-primary text-body-medium font-bold">View all (32)</button>
+</div>
+<!-- List View of Items (As requested in wireframe 4) -->
+<div class="space-y-3">
+<!-- Item 1 -->
+<div class="flex items-center gap-stack-lg p-3 bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex-shrink-0">
+<img class="w-full h-full object-contain p-2" data-alt="Close up commercial photography of a Cetaphil Gentle Skin Cleanser bottle, bright studio lighting, minimalist white background, soft shadows, 8k resolution, professional product shoot for a quick commerce app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnHPX5I5IU2V5p4uNjMS3Q8itRHgME5Bn_aUNuobJ2makR-P4C_HomYS5UakXCx2M31ia_0PlsSsfarMV0hYY6Q227D2u6fWY8xHHCgUU88xcGxN6uy9JuvpFSlLrwLZe343VWjbAMx9NThQHecpjVW99YXk4lFKdpbjAO-LD8TKRZCa7rnKc96ys3zO5pqRCcLe-xW_HT5zx8PnjojPKcWutPkOe5GketE15TOZyHNvcYHQGj-K_q"/>
+</div>
+<div class="flex-grow flex flex-col">
+<span class="text-body-medium font-bold text-on-surface">Face Wash</span>
+<span class="text-body-secondary text-on-surface-variant">Cetaphil Gentle</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-price-display font-price-display">₹349</span>
+<span class="text-body-secondary text-on-surface-variant line-through">₹399</span>
+</div>
+</div>
+<button class="px-6 py-1.5 rounded-lg border border-primary text-primary text-body-medium font-bold active-scale hover:bg-primary/5 transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-stack-lg p-3 bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex-shrink-0">
+<img class="w-full h-full object-contain p-2" data-alt="A bottle of minimalist Sunscreen SPF 50, professional studio product photography, clean aesthetics, bright high-key lighting, minimalist composition, vibrant greens and whites, high detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr6lY3NvMkkn6QoWjXA8jYBAuvzGmus1i80V8TiG5YZvv1kIjm0X0fUqhoHhh_7p0IDjW3H1kmFJL_D871gkbceiCBwTvv4LNBsw8VHytUSEyIEp3HEcr1KJolBUe5tLHUTo-F1xOytH7gK5xZ9RBhQ8g9Es9H-STAl_QnpdxBlxObnoNbpmVivljXJr8Co1bOKqSiQySXEHEsGxkJLbL2HQqihDgiqxEzJNkhZ_dGFcXXSSrHXPMK"/>
+</div>
+<div class="flex-grow flex flex-col">
+<span class="text-body-medium font-bold text-on-surface">Sunscreen</span>
+<span class="text-body-secondary text-on-surface-variant">Minimalist SPF 50</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-price-display font-price-display">₹399</span>
+<span class="text-body-secondary text-on-surface-variant line-through">₹499</span>
+</div>
+</div>
+<button class="px-6 py-1.5 rounded-lg border border-primary text-primary text-body-medium font-bold active-scale hover:bg-primary/5 transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-stack-lg p-3 bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex-shrink-0">
+<img class="w-full h-full object-contain p-2" data-alt="Sleek modern black Air Fryer appliance, professional kitchenware photography, studio lighting, soft highlight on the curved edges, minimalist white background, high contrast, clean product design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBgpQmhGLjSIpc-XK_Q6t5hCk6i5YxQXjTokDN-mya9QkPhrOgNGPR1SQ_T2EBZBU9b92gWamyfvUblZFbyz3pZURcb9_xDe--hRpilHr2CNEjRX-L7br2Zw4yedoyD7N0-gBnXbD-qhiV-2Tgmdrw0u0G782Wlkr73oU_-_hITmkrqiEjV9hbcFZP9QMbNb8sLYymjEjp8qrY1Uhe-gJbzLEvUL29dPqG1AEyrCca138Rozw0rbyB"/>
+</div>
+<div class="flex-grow flex flex-col">
+<span class="text-body-medium font-bold text-on-surface">Air Fryer</span>
+<span class="text-body-secondary text-on-surface-variant">Philips HD9200</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-price-display font-price-display">₹5,299</span>
+</div>
+</div>
+<button class="px-6 py-1.5 rounded-lg border border-primary text-primary text-body-medium font-bold active-scale hover:bg-primary/5 transition-colors">
+                        View
+                    </button>
+</div>
+</div>
+</section>
+<!-- Not Available on Blinkit Section -->
+<section class="px-margin-page mt-8">
+<h2 class="text-section-title font-section-title text-on-surface mb-stack-md">Not Available on Blinkit</h2>
+<p class="text-body-secondary text-on-surface-variant mb-4">(We'll notify when available)</p>
+<div class="flex items-center gap-stack-lg p-3 bg-surface-gray rounded-xl border border-border-subtle opacity-80">
+<div class="w-16 h-16 bg-surface-container rounded-lg flex-shrink-0 grayscale">
+<img class="w-full h-full object-contain p-2" data-alt="Apple AirPods Pro with wireless charging case, professional tech product photography, clean white studio background, soft diffuse lighting, minimalist aesthetic, focus on industrial design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVlj6RMWeKH93Frm_SHmnAzL2_X0fmj4yFkiJE1z-DLZ2dR57qik6pTSgtYG-Dw8s3EHt5w5F1rhTxpYdfz7iKn-pXnV_KE8FPY5_qRfr9zcXNbxVJ9tF4gnpRWesvHziXIUkdhf43nuLJCQfKilf6fVXuPs7BUs1kd2KL45ZkXB9ThBdIvxn5Yqnll2jYVAkatPA_pS6w0nscX9-Ci6k-cuh1NkY8BPDTyOEBatojWWHSa86S6s4Y"/>
+</div>
+<div class="flex-grow flex flex-col">
+<span class="text-body-medium font-bold text-on-surface">Apple AirPods Pro</span>
+<span class="text-body-secondary text-on-surface-variant">Unavailable at your location</span>
+</div>
+<button class="px-4 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant text-body-secondary font-bold active-scale border border-outline-variant">
+                    Notify Me
+                </button>
+</div>
+</section>
+<!-- Completion Score Widget (AI Insight) -->
+<section class="px-margin-page mt-8">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-border-subtle shadow-sm relative overflow-hidden">
+<!-- Subtle Gradient background for AI context -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-ai-surface rounded-full -mr-16 -mt-16 opacity-50 blur-3xl"></div>
+<div class="flex justify-between items-center mb-stack-md relative z-10">
+<h3 class="text-body-medium font-bold text-on-surface">Shopping Completion Score</h3>
+<span class="text-headline-sm font-headline-sm text-ai-text">82%</span>
+</div>
+<div class="w-full bg-border-subtle h-2 rounded-full overflow-hidden mb-3 relative z-10">
+<div class="bg-primary h-full w-[82%] rounded-full"></div>
+</div>
+<p class="text-body-secondary text-on-surface-variant relative z-10">Add a few more items to complete your weekly household shopping goal.</p>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-16 bg-surface shadow-lg px-2 pb-safe z-50 border-t border-border-subtle">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 nav-active-scale hover:bg-surface-container-lowest transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-badge-label font-badge-label mt-0.5">Home</span>
+</a>
+<!-- Categories -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 nav-active-scale hover:bg-surface-container-lowest transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-badge-label font-badge-label mt-0.5">Categories</span>
+</a>
+<!-- My List (Active) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold nav-active-scale transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_bulleted" style="font-variation-settings: 'FILL' 1;">format_list_bulleted</span>
+<span class="text-badge-label font-badge-label mt-0.5">My List</span>
+</a>
+<!-- Orders -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 nav-active-scale hover:bg-surface-container-lowest transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-badge-label font-badge-label mt-0.5">Orders</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 nav-active-scale hover:bg-surface-container-lowest transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-badge-label font-badge-label mt-0.5">Account</span>
+</a>
+</nav>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.active-scale, .nav-active-scale').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = button.classList.contains('nav-active-scale') ? 'scale(0.95)' : 'scale(0.96)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'scale(1)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+
+        // Filter chips switching logic (simplistic)
+        const chips = document.querySelectorAll('section:nth-of-type(2) button');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
+                    c.classList.add('bg-surface-container-high', 'text-on-surface-variant', 'font-medium');
+                });
+                chip.classList.add('bg-primary', 'text-on-primary', 'font-bold');
+                chip.classList.remove('bg-surface-container-high', 'text-on-surface-variant', 'font-medium');
+            });
+        });
+    </script>
+</body></html>

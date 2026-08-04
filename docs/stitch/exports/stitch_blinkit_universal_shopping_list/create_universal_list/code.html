@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Blinkit - Create Universal Shopping List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#241a00",
+                        "surface": "#fcf9f8",
+                        "primary-fixed": "#8ffb87",
+                        "price-red": "#E74C3C",
+                        "secondary-container": "#ffcb13",
+                        "border-subtle": "#E8ECEF",
+                        "inverse-on-surface": "#f3f0ef",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#f9f4ff",
+                        "on-background": "#1b1b1b",
+                        "ai-text": "#6C5CE7",
+                        "surface-dim": "#dcd9d9",
+                        "primary": "#006714",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#74dd6e",
+                        "on-secondary-container": "#6f5700",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#f2c000",
+                        "on-primary-fixed-variant": "#00530e",
+                        "inverse-surface": "#313030",
+                        "tertiary": "#523fcc",
+                        "surface-container-low": "#f6f3f2",
+                        "on-surface-variant": "#3f4a3c",
+                        "ai-surface": "#F0EDFF",
+                        "secondary-fixed": "#ffe08e",
+                        "surface-container-high": "#eae7e7",
+                        "on-surface": "#1b1b1b",
+                        "on-tertiary-fixed": "#160066",
+                        "surface-variant": "#e5e2e1",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e4dfff",
+                        "surface-container": "#f0eded",
+                        "outline": "#6f7a6a",
+                        "on-primary-container": "#e0ffd7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#74dd6e",
+                        "surface-tint": "#006e16",
+                        "tertiary-fixed-dim": "#c6bfff",
+                        "surface-gray": "#F4F6F8",
+                        "on-primary-fixed": "#002203",
+                        "tertiary-container": "#6b5be6",
+                        "outline-variant": "#becab7",
+                        "on-secondary-fixed-variant": "#584400",
+                        "secondary": "#755b00",
+                        "on-tertiary-fixed-variant": "#4029ba",
+                        "primary-container": "#0c831f",
+                        "background": "#fcf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.25rem",
+                        "margin-page": "1rem",
+                        "gutter-card": "0.75rem",
+                        "stack-lg": "1rem",
+                        "stack-md": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "cta-text": ["Inter"],
+                        "badge-label": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "body-primary": ["Inter"],
+                        "body-secondary": ["Inter"],
+                        "section-title": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "price-display": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "cta-text": ["16px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "badge-label": ["11px", {"lineHeight": "14px", "fontWeight": "700"}],
+                        "display-hero": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-primary": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-secondary": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "section-title": ["16px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "body-medium": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "price-display": ["14px", {"lineHeight": "18px", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .ios-status-bar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-surface-gray text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="bg-surface sticky top-0 z-40 w-full">
+<div class="ios-status-bar text-on-surface">
+<span>9:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined !text-[18px]">wifi</span>
+<span class="material-symbols-outlined !text-[18px]">battery_full</span>
+</div>
+</div>
+<div class="flex justify-between items-center w-full px-margin-page h-14">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-headline-sm font-headline-sm text-primary font-bold">My Universal Shopping List</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-margin-page py-stack-lg space-y-6 pb-28">
+<!-- Main Input Section -->
+<div class="space-y-stack-md">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="add">add</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface rounded-xl border-none shadow-[0px_4px_12px_rgba(0,0,0,0.05)] focus:ring-2 focus:ring-primary-container text-body-primary font-body-primary placeholder:text-on-surface-variant/60 transition-all" placeholder="+ Add anything..." type="text"/>
+</div>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant px-1 italic">Add from anywhere - apps, photos, or handwritten lists.</p>
+</div>
+<!-- Examples Section -->
+<section class="space-y-stack-lg">
+<div class="flex items-center justify-between">
+<h2 class="text-section-title font-section-title text-on-surface-variant">Examples - Add from anywhere</h2>
+<span class="bg-ai-surface text-ai-text px-2 py-1 rounded-full text-badge-label font-badge-label flex items-center gap-1">
+<span class="material-symbols-outlined !text-[12px]">auto_awesome</span>
+                    Smart Match
+                </span>
+</div>
+<!-- List of Items -->
+<div class="bg-surface rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] divide-y divide-border-subtle overflow-hidden">
+<!-- Item 1: Face Wash -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A clean, minimalist product photograph of a premium face wash bottle against a soft, light-mode background. The lighting is bright and airy, reflecting a modern healthcare aesthetic with subtle green and white tones, matching the professional quick-commerce UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg61hluYt7vxOIvq7C1BtcUntmz5oUm6ht-aNbXLE1fzTlTUcn8XaJPXmtY4ArfJmRlVwW8aSwZz6kI8kcI3heyQZXBMrzckzzbRSvE6rZqN34XtQEdhakDMGOXUeh67eYmx6c-PP9mbOvYvakNCxPOKjU5UxZhysSOVYQRP3ZoE-TyBpcLwjl02IRco3UsMGHK7oUQfdJvfWYvkqTfJsFJnhkicHfSyLOgWTxvJSe2iVmOdoiHHT9"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Face Wash</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Skincare &amp; Hygiene</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 2: Sunscreen -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="Product shot of a sleek orange and white sunscreen tube in a high-key lighting environment. The image is crisp and professional, fitting into a minimalist commerce app's visual identity. The background is a clean off-white with soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxUCop2c13lwKtOWoU_ljk9S8LHsnX0752-JY9HBM7zQa_VLq3NH7PYyTttcoAFGystklSl20dqUNHp1nE9Wz2Vv-eVmRG6itYOorX9t8wekqo3_UvUSN8-jUV2End8VvonNK2-iplkvC1dHLROxCArz_t_UgW9WQ_h0ANjhOqUzAmfis5knBugpVc2syQtZvXY3eRQuitiMyG9oigBP5PFfy2WWKU6bnrE5nTNz6OwY4iPWHsZYg_"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Sunscreen</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Summer Essentials</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 3: Air Fryer -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A high-quality product image of a modern black matte air fryer with digital display. The aesthetic is sophisticated and high-tech, set against a pristine minimalist background that emphasizes product utility and corporate modern design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMoj5xHcMW1VlVvSQVXnJ4BfEU0VqXe3XbvDKBVpDNG9JCc_j2kcGlqOPxiJqnSrLEdJr0bgYReGIezOfEVTdsiXhV4J5JyvWbOeWE-90suaYelHewGugCtdVWenjkqo-Kv_xi4S1nGehEA8twBy01p6plCJNTInM_3M5Nlux8QxYnuIUty4RKq8irVgcHQUbrAaDtAikc2P7jUbC4N3k3q1ZiEDV9Ys7sn1BeV6ZpTV3lX9NrKlJp"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Air Fryer</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Home Appliances</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 4: USB Cable -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="Professional studio shot of a braided white USB-C cable neatly coiled. The image is clean, sharp, and minimalist, following a bright light-mode aesthetic for a modern mobile shopping experience with subtle gray shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk_N4Ordpih70aFsaCgX2hXEu1SMXyHHlcjtME605Au7PxmwqrKODaGPTguqJj3EwoRmsGLQJLUZeUdG0P8cFnxpN1DId9X1ek-U-v-jkJW9LxgS-U0jqomFpfNt-TYuVssBfSOuFLcTPnGFcsoIHc4wzuI8FfmuVQSsG9T1QRyztBpTmDhLNZaPuumX_fjQMhFyTE0IbhEXrbYJ3lEgkcTrDajm64Pbhi_MAEQgbDpa03Mpcqr1Xs"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">USB Cable</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Electronics</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 5: Protein Powder -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A large, modern tub of protein supplement with a professional label design. Bright, energetic lighting highlights the product, maintaining a consistent minimalist and clean UI feel. The color palette is neutral with high-impact clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAylyz7QFC_leNC4PRltq-1exfjQDsuR1S6Y1f0aS58hTFRsJno3DJioxXXGgcjft9EcL28ugZaXSVZ1IMsirLE0gIsSgR9UJbioV47eAMLJMIMBfTi3CNX-CL66EbbFJ4DVMS7sM8kWOLIfDNc9H-3sX9aBU5wvBsXuhZv2tlEuWxHt4mViV5L7bryAhA1ilnc3BBVeVtg6qijPvFaa7HOcYCLFkju7C8Uto63Rh5hiuYaoLncE_5T"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Protein Powder</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Health &amp; Fitness</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 6: Dog Food -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A colorful and professional bag of premium dog food. The image is shot in a high-key studio setting with vibrant, clean colors that evoke trust and efficiency, fitting perfectly into the app's sophisticated shopping environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw-cCmvuUNZYxkP5jMr1CGBrl9OMWwwEHAbACJ7rMXI4sAazDnq3_dsSRutMJaKn67zchA8o1Y6DkeJsc_t3LPLWBG9dBDJ67RONqXSN0eQNLIhMSGJ_vUd6hW_UjD1nAZsf51o4Pv8i5MOquLv8ClEUJRWKfPRqoGckZcjMbt-mTYP1b93Jf4nQbPZWnTJXhcgF_2lOxSeO2_kp2Y3nqrQFESAqZInJgsJ8EHc0avFbvRnuGkOTaP"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Dog Food</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Pet Supplies</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 7: Bedsheet -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors cursor-pointer group active:scale-[0.98] duration-150">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-gray rounded-lg flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A stack of folded, high-quality cotton bedsheets in soft neutral tones. The photography is airy and soft, creating a sense of home comfort and minimalist elegance consistent with the overall modern UI design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIX-qCRYOQ6eUJUS4IvnFV-OmX9MsxtVlGuBrNXWP24RbF-748ifR5Zeg3WygHKcpdCwMS68Hcq8ipFuN6WMVQ2cN07RqC7ERfbJArYj46wzI7frVP07_9DEyjowDvC1NrTa01y9FHG7l2jKJiExSIMNzpvmuAeQs9I5lJwuEiLG-P7-ZDCQaoWWtmWqxu5vfq3G-tVMg258Za1jSEhcsMrxe1CXx4uBIcQ_OZjU6Hgx_TN9pOBjol"/>
+</div>
+<div>
+<p class="text-body-medium font-body-medium text-on-surface">Bedsheet</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Home &amp; Living</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- AI Shopping Score Hint -->
+<div class="bg-ai-surface rounded-xl p-4 flex gap-4 items-start shadow-sm">
+<span class="material-symbols-outlined text-ai-text mt-1" data-icon="auto_awesome">auto_awesome</span>
+<div class="space-y-1">
+<p class="text-body-medium font-body-medium text-ai-text">AI Powered Shopping</p>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">Your universal list will be automatically mapped to Blinkit inventory and upcoming needs.</p>
+</div>
+</div>
+</main>
+<!-- Bottom Floating Bar -->
+<div class="fixed bottom-0 left-0 w-full p-4 bg-surface/80 backdrop-blur-md border-t border-border-subtle z-50">
+<button class="w-full h-[48px] bg-primary text-on-primary rounded-xl font-cta-text text-cta-text shadow-lg hover:brightness-110 active:scale-[0.96] transition-all flex items-center justify-center gap-2">
+            Save List
+            <span class="material-symbols-outlined !text-[20px]">check_circle</span>
+</button>
+<!-- Safe area spacing for mobile browsers -->
+<div class="h-safe pb-2"></div>
+</div>
+<!-- Navigation Shell (BottomNavBar) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-16 bg-surface px-2 pb-safe shadow-lg border-t border-border-subtle z-[60] md:hidden hidden">
+<!-- Suppression rule applied: Task-Focused Screen. But including template for structure -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined">home</span>
+<span class="text-badge-label font-badge-label">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">format_list_bulleted</span>
+<span class="text-badge-label font-badge-label">My List</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction: Active state feedback for list items
+        document.querySelectorAll('.divide-y > div').forEach(item => {
+            item.addEventListener('click', () => {
+                // Subtle interaction logic can be added here
+            });
+        });
+    </script>
+</body></html>

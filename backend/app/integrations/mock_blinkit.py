@@ -22,6 +22,20 @@ class MockCatalogAdapter(CatalogAdapter):
         row = self.db.query(CatalogProduct).filter(CatalogProduct.sku_id == sku_id).first()
         return _to_dto(row) if row else None
 
+    def list_products(
+        self,
+        category: str | None = None,
+        query: str | None = None,
+        limit: int = 50,
+    ) -> list[CatalogProductDTO]:
+        rows_query = self.db.query(CatalogProduct)
+        if category:
+            rows_query = rows_query.filter(CatalogProduct.category == category)
+        if query:
+            rows_query = rows_query.filter(CatalogProduct.product_name.ilike(f"%{query.lower()}%"))
+        rows = rows_query.order_by(CatalogProduct.category, CatalogProduct.product_name).limit(limit).all()
+        return [_to_dto(r) for r in rows]
+
 
 class MockInventoryAdapter(InventoryAdapter):
     def __init__(self, db: Session):

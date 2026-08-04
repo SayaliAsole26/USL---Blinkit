@@ -1,0 +1,36 @@
+{
+  "seasons": [
+    {
+      "id": "summer",
+      "name": "Summer",
+      "months": [3, 4, 5, 6],
+      "keywords": ["sunscreen", "sun screen", "spf", "sunglasses", "summer", "cooling", "deodorant"],
+      "categories": ["Personal Care"]
+    },
+    {
+      "id": "monsoon",
+      "name": "Monsoon",
+      "months": [6, 7, 8, 9],
+      "keywords": ["umbrella", "raincoat", "rain coat", "rain", "monsoon", "waterproof"],
+      "categories": ["Home Essentials"]
+    },
+    {
+      "id": "winter",
+      "name": "Winter",
+      "months": [11, 12, 1, 2],
+      "keywords": ["moisturizer", "lotion", "winter", "warm", "blanket", "wool"],
+      "categories": ["Personal Care", "Home Essentials"]
+    },
+    {
+      "id": "festive",
+      "name": "Festive Season",
+      "months": [10, 11],
+      "keywords": ["gift", "hamper", "diwali", "festive", "celebration", "birthday"],
+      "categories": ["Gifting"]
+    }
+  ],
+  "festivals": [
+    { "name": "Diwali", "month": 10, "day_range": [20, 31] },
+    { "name": "Holi", "month": 3, "day_range": [10, 20] }
+  ]
+}

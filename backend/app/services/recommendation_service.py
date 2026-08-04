@@ -108,11 +108,15 @@ class RecommendationService:
             "message": message,
         }
 
-    def handle_order_completed(self, user_id: uuid.UUID, sku_ids: list[str], order_id: str) -> int:
+    def handle_order_completed(self, user_id: uuid.UUID, sku_ids: list[str], order_id: str) -> tuple[int, int]:
         if not sku_ids:
-            return 0
+            return 0, 0
 
         from app.db.models import CatalogMatch
+        from app.services.purchase_history_service import PurchaseHistoryService
+
+        purchase_history = PurchaseHistoryService(self.db)
+        history_count = purchase_history.record_order_purchases(user_id, sku_ids, order_id)
 
         items = list(
             self.db.scalars(
@@ -134,7 +138,7 @@ class RecommendationService:
                 purchased_count += 1
 
         self.db.commit()
-        return purchased_count
+        return purchased_count, history_count
 
     def _log_event(
         self,

@@ -52,3 +52,19 @@ class OrderCompletedRequest(BaseModel):
 class OrderCompletedResponse(BaseModel):
     order_id: str
     usl_items_marked_purchased: int
+    purchase_history_recorded: int = 0
+
+
+class OrderHistoryEntry(BaseModel):
+    sku_id: str = Field(..., min_length=1)
+    purchased_at: datetime | None = None
+    quantity: int = Field(default=1, ge=1)
+    order_id: str | None = None
+
+
+class OrderHistoryImportRequest(BaseModel):
+    purchases: list[OrderHistoryEntry] = Field(default_factory=list)
+
+
+class OrderHistoryImportResponse(BaseModel):
+    recorded: int

@@ -8,10 +8,27 @@ from app.db.session import get_db
 from app.integrations.mock_blinkit import MockCatalogAdapter, MockInventoryAdapter, get_cart_adapter
 from app.middleware.auth import get_current_user
 from app.pipeline.llm import GroqLLMService
-from app.schemas.recommendations import OrderCompletedRequest, OrderCompletedResponse
+from app.schemas.recommendations import (
+    OrderCompletedRequest,
+    OrderCompletedResponse,
+    OrderHistoryImportRequest,
+    OrderHistoryImportResponse,
+)
 from app.services.recommendation_service import RecommendationService
 
 router = APIRouter(prefix="/integrations", tags=["integrations"])
+
+
+@router.get("/catalog/products")
+def list_catalog_products(
+    category: str | None = Query(default=None),
+    q: str | None = Query(default=None, min_length=1),
+    limit: int = Query(default=50, le=100),
+    db: Session = Depends(get_db),
+):
+    adapter = MockCatalogAdapter(db)
+    products = adapter.list_products(category=category, query=q, limit=limit)
+    return {"count": len(products), "products": [p.__dict__ for p in products]}
 
 
 @router.get("/catalog/search")
@@ -68,9 +85,38 @@ def order_completed(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ):
-    count = RecommendationService(db, settings).handle_order_completed(
+    purchased_count, history_count = RecommendationService(db, settings).handle_order_completed(
         user.user_id,
         payload.sku_ids,
         payload.order_id,
     )
-    return OrderCompletedResponse(order_id=payload.order_id, usl_items_marked_purchased=count)
+    return OrderCompletedResponse(
+        order_id=payload.order_id,
+        usl_items_marked_purchased=purchased_count,
+        purchase_history_recorded=history_count,
+    )
+
+
+@router.post("/orders/history/import", response_model=OrderHistoryImportResponse)
+def import_order_history(
+    payload: OrderHistoryImportRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from app.services.purchase_history_service import PurchaseHistoryService
+
+    service = PurchaseHistoryService(db)
+    recorded = 0
+    for entry in payload.purchases:
+        order_id = entry.order_id or f"hist_{recorded}"
+        n = service.record_order_purchases(
+            user.user_id,
+            [entry.sku_id],
+            order_id,
+            source="blinkit_history",
+            purchased_at=entry.purchased_at,
+        )
+        recorded += n
+
+    db.commit()
+    return OrderHistoryImportResponse(recorded=recorded)

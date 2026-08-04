@@ -1,27 +1,34 @@
-import { useCallback, useEffect, useState } from "react";
-import { api, CheckoutRecommendation, LocationResponse } from "../api/client";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { api, CatalogProduct, CheckoutRecommendation, LocationResponse } from "../api/client";
+import Icon from "../components/layout/Icon";
 import RecommendationCard from "../components/RecommendationCard";
+import CompletionScore from "../components/ui/CompletionScore";
 
 type Props = {
   location: LocationResponse;
   onBack: () => void;
+  onOrderPlaced: (message: string) => void;
 };
 
-export default function CheckoutPage({ location, onBack }: Props) {
+export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props) {
   const [cartItems, setCartItems] = useState<Array<{ sku_id: string; quantity: number }>>([]);
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [recommendations, setRecommendations] = useState<CheckoutRecommendation[]>([]);
   const [checkoutSessionId, setCheckoutSessionId] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
-  const [orderMessage, setOrderMessage] = useState("");
+
+  const productBySku = useMemo(() => new Map(products.map((p) => [p.sku_id, p])), [products]);
 
   const loadCheckout = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const cart = await api.getCart();
+      const [cart, catalog] = await Promise.all([api.getCart(), api.listCatalogProducts()]);
       setCartItems(cart.items);
+      setProducts(catalog.products);
       const cartSkus = cart.items.map((i) => i.sku_id).join(",");
       const data = await api.getCheckoutRecommendations(cartSkus || undefined);
       setCheckoutSessionId(data.checkout_session_id);
@@ -37,10 +44,13 @@ export default function CheckoutPage({ location, onBack }: Props) {
     loadCheckout();
   }, [loadCheckout]);
 
-  async function addGroceryToCart() {
-    await api.addCartItem("sku_milk_001");
-    await loadCheckout();
-  }
+  const cartTotal = cartItems.reduce((sum, item) => {
+    const product = productBySku.get(item.sku_id);
+    return sum + (product?.price ?? 0) * item.quantity;
+  }, 0);
+
+  const itemCount = cartItems.reduce((s, i) => s + i.quantity, 0);
+  const completionScore = Math.min(95, 60 + recommendations.length * 8 + itemCount * 3);
 
   async function handleAction(rec: CheckoutRecommendation, action: "added_to_cart" | "saved_for_later" | "dismissed") {
     setActionLoading(true);
@@ -64,55 +74,77 @@ export default function CheckoutPage({ location, onBack }: Props) {
       setError("Add items to cart before placing order");
       return;
     }
-    const result = await api.completeOrder(`ord_${Date.now()}`, skuIds);
-    setOrderMessage(`Order placed — ${result.usl_items_marked_purchased} USL item(s) synced.`);
-    setCartItems([]);
-    setRecommendations([]);
+    setPlacing(true);
+    try {
+      const result = await api.completeOrder(`ord_${Date.now()}`, skuIds);
+      onOrderPlaced(`Order placed — ${result.usl_items_marked_purchased} USL item(s) synced.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Order failed");
+    } finally {
+      setPlacing(false);
+    }
   }
 
   return (
-    <div className="page">
-      <header className="hero compact">
-        <button type="button" className="btn-ghost back-btn" onClick={onBack}>
-          ← Back to list
-        </button>
-        <span className="badge">Checkout only</span>
-        <h1>Checkout</h1>
-        <p className="location-line">
-          Delivering to <strong>{location.city}</strong> · {location.pincode}
-        </p>
-        <p className="hint">USL recommendations appear here only — not during browse or search.</p>
+    <div className="min-h-screen bg-surface pb-36">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-surface px-4">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={onBack} className="rounded-full p-2 active:scale-95">
+            <Icon name="arrow_back" />
+          </button>
+          <div>
+            <h1 className="text-lg font-bold">My Cart ({itemCount} items)</h1>
+            <p className="text-xs text-on-surface-variant">
+              Delivering to {location.pincode} - {location.city}
+            </p>
+          </div>
+        </div>
+        <span className="text-lg font-bold text-primary">₹{cartTotal.toFixed(0)}</span>
       </header>
 
-      <div className="card">
-        <h2>Your cart</h2>
-        {cartItems.length === 0 && <p className="muted">Cart is empty. Add groceries to simulate checkout.</p>}
-        <ul className="cart-list">
-          {cartItems.map((item) => (
-            <li key={item.sku_id}>
-              {item.sku_id} × {item.quantity}
-            </li>
-          ))}
-        </ul>
-        <div className="cart-actions">
-          <button type="button" className="btn-ghost" onClick={addGroceryToCart}>
-            Add Amul Milk (groceries)
-          </button>
-          <button type="button" className="btn-primary" onClick={placeOrder} disabled={cartItems.length === 0}>
-            Place order
-          </button>
-        </div>
-        {orderMessage && <p className="success">{orderMessage}</p>}
-      </div>
+      <main className="space-y-4 px-4 pt-4">
+        <CompletionScore
+          score={completionScore}
+          hint="Add a few more items to complete your shopping based on your recurring needs."
+        />
 
-      <div className="card">
-        <h2>From your Universal Shopping List</h2>
-        {loading && <p className="muted">Loading recommendations…</p>}
-        {error && <p className="error">{error}</p>}
-        {!loading && !error && recommendations.length === 0 && (
-          <p className="empty-state">No checkout recommendations right now — add USL items with catalog matches.</p>
+        {cartItems.length > 0 && (
+          <section className="rounded-xl border border-border-subtle bg-surface-container-low p-4 opacity-90">
+            <h2 className="mb-3 text-sm font-bold">Cart items</h2>
+            <ul className="space-y-2 text-sm">
+              {cartItems.map((item) => {
+                const product = productBySku.get(item.sku_id);
+                return (
+                  <li key={item.sku_id} className="flex justify-between">
+                    <span>{product?.product_name ?? item.sku_id} × {item.quantity}</span>
+                    <span className="font-bold">₹{((product?.price ?? 0) * item.quantity).toFixed(0)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-3 flex justify-between border-t border-border-subtle pt-3 text-sm">
+              <span>Delivery Fee</span>
+              <span>
+                <span className="text-on-surface-variant line-through">₹25</span>{" "}
+                <span className="font-bold text-primary">FREE</span>
+              </span>
+            </div>
+          </section>
         )}
-        <div className="rec-list">
+
+        <div className="flex items-center gap-2 pt-2">
+          <Icon name="auto_awesome" filled className="text-ai-text" />
+          <h2 className="text-base font-bold">You may need these too</h2>
+        </div>
+
+        {loading && <p className="text-sm text-on-surface-variant">Loading recommendations…</p>}
+        {error && <p className="text-sm text-error">{error}</p>}
+        {!loading && recommendations.length === 0 && (
+          <p className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">
+            No checkout recommendations right now — add USL items with catalog matches.
+          </p>
+        )}
+        <div className="space-y-3">
           {recommendations.map((rec) => (
             <RecommendationCard
               key={rec.recommendation_id}
@@ -122,7 +154,27 @@ export default function CheckoutPage({ location, onBack }: Props) {
             />
           ))}
         </div>
-      </div>
+      </main>
+
+      <footer className="fixed bottom-0 left-0 z-50 w-full border-t border-border-subtle bg-surface px-4 py-3 pb-8">
+        <div className="mx-auto max-w-md">
+          <button
+            type="button"
+            onClick={placeOrder}
+            disabled={cartItems.length === 0 || placing}
+            className="flex h-14 w-full items-center justify-between rounded-xl bg-primary-container px-6 text-on-primary shadow-lg transition-transform active:scale-[0.98] disabled:opacity-50"
+          >
+            <div className="flex flex-col items-start">
+              <span className="text-lg font-bold">₹{cartTotal.toFixed(0)}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-primary/80">Total Bill</span>
+            </div>
+            <div className="flex items-center gap-1 text-base font-semibold">
+              {placing ? "Placing…" : "Place Order"}
+              <Icon name="chevron_right" />
+            </div>
+          </button>
+        </div>
+      </footer>
     </div>
   );
 }

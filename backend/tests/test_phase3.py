@@ -88,7 +88,15 @@ def test_path_b_returns_explainable_recommendations(db_session, phase3_settings)
     assert len(result["recommendations"]) <= 5
     for rec in result["recommendations"]:
         assert rec["reason_text"]
-        assert rec["reason_type"] in {"memory_reminder", "cross_category_discovery", "shopping_completion"}
+        assert rec["reason_type"] in {
+            "memory_reminder",
+            "cross_category_discovery",
+            "shopping_completion",
+            "weather_context",
+            "seasonal_context",
+            "event_based",
+            "replenishment_reminder",
+        }
         assert rec["sku_id"] != "sku_milk_001"
 
 
@@ -163,11 +171,12 @@ def test_order_completed_marks_purchased(db_session, phase3_settings):
 
     from app.services.recommendation_service import RecommendationService
 
-    count = RecommendationService(db_session, phase3_settings).handle_order_completed(
+    count, history_count = RecommendationService(db_session, phase3_settings).handle_order_completed(
         TEST_USER_ID,
         [match.sku_id],
         "ord_123",
     )
     assert count == 1
+    assert history_count == 1
     db_session.refresh(item)
     assert item.status == "purchased"

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Blinkit Checkout - AI Smart Suggestions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#241a00",
+                        "surface": "#fcf9f8",
+                        "primary-fixed": "#8ffb87",
+                        "price-red": "#E74C3C",
+                        "secondary-container": "#ffcb13",
+                        "border-subtle": "#E8ECEF",
+                        "inverse-on-surface": "#f3f0ef",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#f9f4ff",
+                        "on-background": "#1b1b1b",
+                        "ai-text": "#6C5CE7",
+                        "surface-dim": "#dcd9d9",
+                        "primary": "#006714",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#74dd6e",
+                        "on-secondary-container": "#6f5700",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#f2c000",
+                        "on-primary-fixed-variant": "#00530e",
+                        "inverse-surface": "#313030",
+                        "tertiary": "#523fcc",
+                        "surface-container-low": "#f6f3f2",
+                        "on-surface-variant": "#3f4a3c",
+                        "ai-surface": "#F0EDFF",
+                        "secondary-fixed": "#ffe08e",
+                        "surface-container-high": "#eae7e7",
+                        "on-surface": "#1b1b1b",
+                        "on-tertiary-fixed": "#160066",
+                        "surface-variant": "#e5e2e1",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e4dfff",
+                        "surface-container": "#f0eded",
+                        "outline": "#6f7a6a",
+                        "on-primary-container": "#e0ffd7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#74dd6e",
+                        "surface-tint": "#006e16",
+                        "tertiary-fixed-dim": "#c6bfff",
+                        "surface-gray": "#F4F6F8",
+                        "on-primary-fixed": "#002203",
+                        "tertiary-container": "#6b5be6",
+                        "outline-variant": "#becab7",
+                        "on-secondary-fixed-variant": "#584400",
+                        "secondary": "#755b00",
+                        "on-tertiary-fixed-variant": "#4029ba",
+                        "primary-container": "#0c831f",
+                        "background": "#fcf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.25rem",
+                        "margin-page": "1rem",
+                        "gutter-card": "0.75rem",
+                        "stack-lg": "1rem",
+                        "stack-md": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "cta-text": ["Inter"],
+                        "badge-label": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "body-primary": ["Inter"],
+                        "body-secondary": ["Inter"],
+                        "section-title": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "price-display": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "cta-text": ["16px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "badge-label": ["11px", {"lineHeight": "14px", "fontWeight": "700"}],
+                        "display-hero": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-primary": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-secondary": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "section-title": ["16px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "body-medium": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "price-display": ["14px", {"lineHeight": "18px", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf9f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .progress-bar-glow {
+            box-shadow: 0 0 10px rgba(0, 103, 20, 0.2);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-on-surface">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-surface flex justify-between items-center w-full px-margin-page h-14 transition-all duration-150">
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-container-low transition-colors p-2 rounded-full active:scale-95">arrow_back</button>
+<div class="flex flex-col">
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface">My Cart (7 items)</h1>
+<p class="text-[12px] text-on-surface-variant font-body-secondary leading-tight">Delivering to 560102 - Indiranagar</p>
+</div>
+</div>
+<div class="text-headline-sm font-headline-sm font-bold text-primary">₹1,248</div>
+</header>
+<main class="flex-1 px-margin-page pb-32 space-y-stack-lg">
+<!-- Shopping Completion Score Widget -->
+<section class="bg-surface-container-lowest rounded-xl p-4 shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle mt-4">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="text-ai-text font-headline-sm text-headline-sm">Shopping Completion Score</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-[20px]">close</button>
+</div>
+<div class="flex items-end justify-between mb-2">
+<span class="text-3xl font-bold text-ai-text">82%</span>
+<span class="text-[12px] text-ai-text font-medium bg-ai-surface px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span> Smart List
+                </span>
+</div>
+<!-- Progress Bar -->
+<div class="h-2 w-full bg-border-subtle rounded-full overflow-hidden mb-3">
+<div class="h-full bg-primary progress-bar-glow transition-all duration-1000 ease-out" style="width: 82%;"></div>
+</div>
+<p class="text-body-primary font-body-primary text-on-surface-variant">Add a few more items to complete your shopping based on your recurring needs.</p>
+</section>
+<!-- AI Suggestions Header -->
+<div class="flex items-center gap-2 pt-2">
+<span class="material-symbols-outlined text-ai-text text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h2 class="text-section-title font-section-title text-on-surface">You may need these too</h2>
+</div>
+<!-- AI Suggestion Cards Container -->
+<div class="space-y-stack-md">
+<!-- Card 1: Face Wash -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-3 flex gap-4 transition-all active:scale-[0.98] hover:shadow-sm">
+<div class="w-20 h-20 bg-surface-container-low rounded-lg flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up studio photography of a premium foaming face wash bottle with a pump dispenser. Minimalist white packaging with green botanical accents. Soft, clean light-mode photography on a neutral studio background, 8k resolution, commercial advertising style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV1uyoL9XkAQ1fZyFrFUm3nYAe-b-E7c4LlbWKeW_AV4UP-D2kuABYiPk4wf_zs4RTYZcmIn5dJhUhDkfsE6J_Di1yxaGRaCpP9ocXfLPdQ9R6zAODYqfg_mRgnVY2FNn5CAxdcGblkr2DjgtLUstileVddt-H24VOyrhCWK2OTZIMh3GsIXaPIkb01dlcuEW6zYS78WqWeKfhB0rMQOBwyVc8t0t0qjrB9GrXKX4lb8F6_07hvehW"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="inline-flex items-center gap-1 bg-ai-surface text-ai-text px-2 py-0.5 rounded-full mb-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<span class="text-badge-label font-badge-label">You usually buy every 18 days</span>
+</div>
+<h3 class="text-body-medium font-body-medium text-on-surface">Cetaphil Gentle Skin Cleanser</h3>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">250ml • Available at your pincode</p>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<span class="text-price-display font-price-display text-on-surface">₹399</span>
+<span class="text-[11px] text-on-surface-variant line-through">₹499</span>
+</div>
+<button class="bg-primary text-on-primary h-9 px-6 rounded-lg text-cta-text font-cta-text flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+                            + Add
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 2: Sunscreen -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-3 flex gap-4 transition-all active:scale-[0.98] hover:shadow-sm">
+<div class="w-20 h-20 bg-surface-container-low rounded-lg flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A tube of high-quality SPF 50 sunscreen on a bright wooden surface with warm summer sunlight and soft palm leaf shadows. Minimalist design, vibrant colors, professional product photography for a high-end delivery app, clean and crisp aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7xljPVEIrsRLoQE_Mtl6V4x3nVdFDajCGJHqh6e5W5QIj3m5YC09qWDQR0mqYlCJgFz-G3OEydegL5BbaL0MqSPJR-cgf8pwPKYGcDsRj_L7_liqUTZHm6XxzJ_454RGaJWHKwt8m7H743L0QxOtUaEfYSP62EH7AaIemiwF_grtM2o1THDWOtOJOgLD5KaCDMZ3Havs8Rh9LS9u6ncd9W13tN-BRH4vK8GKgzhtMoZIcygpVAmMM"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="inline-flex items-center gap-1 bg-ai-surface text-ai-text px-2 py-0.5 rounded-full mb-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">wb_sunny</span>
+<span class="text-badge-label font-badge-label">Hot weather today (38°C)</span>
+</div>
+<h3 class="text-body-medium font-body-medium text-on-surface">Minimalist SPF 50 Sunscreen</h3>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">50g • Your favorite is available</p>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<span class="text-price-display font-price-display text-on-surface">₹399</span>
+<span class="text-[11px] text-on-surface-variant line-through">₹499</span>
+</div>
+<button class="bg-primary text-on-primary h-9 px-6 rounded-lg text-cta-text font-cta-text flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+                            + Add
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 3: Dog Food -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-3 flex gap-4 transition-all active:scale-[0.98] hover:shadow-sm">
+<div class="w-20 h-20 bg-surface-container-low rounded-lg flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A large, premium bag of dry dog food with a picture of a healthy golden retriever on the label. Clean studio lighting, bright white background, minimalist composition emphasizing the nutritional quality of the pet food. Vibrant greens and yellows in the packaging." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATCqRxFQvW0loD88anrB2mIDPe3KvgbqTlWOPz_U7Hfl6rMEpgZttCRA9aUFXsyqyqlwI5VPD0RSeMhvSOrn2Z9uV2gnHiATdTFoaSMQRmJ-2ruaMZ9xXued4xouqYjoetoiHe9y_t5r7GLSOTUgiXCE2B9khaaTn3-1GpeRWJro5vvtaTX6AQTzrGdHbUuzqJe3MU4fZUUTXI20H5uaWkVEsBtPfAfX5mbsNEyu15HOPcL7BMH2WJ"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="inline-flex items-center gap-1 bg-ai-surface text-ai-text px-2 py-0.5 rounded-full mb-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="text-badge-label font-badge-label">You buy every month</span>
+</div>
+<h3 class="text-body-medium font-body-medium text-on-surface">Drools Focus Adult Dog Food</h3>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant">1.2kg • Last purchased 29 days ago</p>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<span class="text-price-display font-price-display text-on-surface">₹899</span>
+<span class="text-[11px] text-on-surface-variant line-through">₹1,099</span>
+</div>
+<button class="bg-primary text-on-primary h-9 px-6 rounded-lg text-cta-text font-cta-text flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+                            + Add
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Billing Summary Mini -->
+<div class="p-4 bg-surface-container-low rounded-xl border border-border-subtle mt-4 opacity-70">
+<div class="flex justify-between items-center text-body-primary font-body-primary mb-2">
+<span>Item Total</span>
+<span>₹1,248</span>
+</div>
+<div class="flex justify-between items-center text-body-primary font-body-primary mb-2">
+<span>Handling Fee</span>
+<span>₹5</span>
+</div>
+<div class="flex justify-between items-center text-primary font-body-primary">
+<span>Delivery Fee</span>
+<span class="line-through text-on-surface-variant">₹25</span>
+<span class="font-bold">FREE</span>
+</div>
+</div>
+</main>
+<!-- Bottom Sticky Checkout Bar -->
+<footer class="fixed bottom-0 left-0 w-full bg-surface border-t border-border-subtle px-4 py-3 pb-8 z-[60]">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-primary-container text-on-primary h-14 rounded-xl flex items-center justify-between px-6 active:scale-[0.98] transition-transform duration-150 shadow-lg">
+<div class="flex flex-col items-start">
+<span class="text-on-primary font-bold text-headline-sm">₹1,248</span>
+<span class="text-[10px] text-on-primary/80 uppercase tracking-wider font-bold">Total Bill</span>
+</div>
+<div class="flex items-center gap-1 font-cta-text text-cta-text text-on-primary">
+                    Proceed to Checkout
+                    <span class="material-symbols-outlined">chevron_right</span>
+</div>
+</button>
+</div>
+</footer>
+<!-- Simple Scroll Interaction -->
+<script>
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md', 'bg-white/95', 'backdrop-blur-sm');
+            } else {
+                header.classList.remove('shadow-md', 'bg-white/95', 'backdrop-blur-sm');
+            }
+        });
+
+        // Add feedback for adding items
+        const addButtons = document.querySelectorAll('button');
+        addButtons.forEach(btn => {
+            if (btn.innerText.includes('+ Add')) {
+                btn.addEventListener('click', function() {
+                    this.innerHTML = '<span class="material-symbols-outlined text-[20px]">check</span>';
+                    this.classList.remove('bg-primary');
+                    this.classList.add('bg-primary-fixed-dim', 'text-primary');
+                    
+                    // Trigger a tiny animation
+                    this.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+        });
+    </script>
+</body></html>

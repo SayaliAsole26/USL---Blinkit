@@ -1,0 +1,13 @@
+{
+  "default_days": 30,
+  "categories": {
+    "Personal Care": 30,
+    "Groceries": 7,
+    "Pet Supplies": 14,
+    "Health & Nutrition": 45,
+    "Home Essentials": 60,
+    "Electronics": 365,
+    "Gifting": 365
+  },
+  "min_days_between_reminders": 7
+}

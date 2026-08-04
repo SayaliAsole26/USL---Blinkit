@@ -5,7 +5,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "backend"))
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(BACKEND_ROOT))
 
 from sqlalchemy.orm import Session
 
@@ -61,6 +62,8 @@ def seed_postgres(db: Session, fixtures: list[dict]) -> tuple[int, int]:
 
 def seed_meilisearch(fixtures: list[dict]) -> int:
     settings = get_settings()
+    if not settings.meili_enabled:
+        return 0
     try:
         import meilisearch
     except ImportError:
@@ -87,8 +90,21 @@ def seed_meilisearch(fixtures: list[dict]) -> int:
     return len(documents)
 
 
+def _fixtures_path() -> Path:
+    candidates = [
+        BACKEND_ROOT / "data" / "catalog-fixtures.json",  # Docker: /app/data/
+        ROOT / "data" / "catalog-fixtures.json",  # Local: repo root
+    ]
+    for path in candidates:
+        if path.exists():
+            return path
+    raise FileNotFoundError(
+        "catalog-fixtures.json not found; expected backend/data/ or repo data/ directory"
+    )
+
+
 def main() -> None:
-    fixtures_path = ROOT / "data" / "catalog-fixtures.json"
+    fixtures_path = _fixtures_path()
     fixtures = json.loads(fixtures_path.read_text(encoding="utf-8"))
 
     Base.metadata.create_all(bind=engine)

@@ -1,0 +1,11 @@
+{
+  "memory_reminder": 1.0,
+  "replenishment_reminder": 1.2,
+  "weather_context": 1.0,
+  "seasonal_context": 0.9,
+  "event_based": 1.1,
+  "cross_category_discovery": 0.85,
+  "shopping_completion": 0.8,
+  "acceptance_boost": 0.15,
+  "dismissal_penalty": 0.2
+}

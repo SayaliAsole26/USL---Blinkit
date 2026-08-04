@@ -174,5 +174,20 @@ class GroqLLMService:
             "memory_reminder": f"You added {name} to your Universal Shopping List. It's available on Blinkit today.",
             "cross_category_discovery": f"You came to buy groceries today, but your saved {name} is also available on Blinkit.",
             "shopping_completion": f"You can complete more of your shopping today — {name} from your list is available now.",
+            "weather_context": (
+                f"Rain is forecast in the next {signals.get('days_ahead', 'few')} days — "
+                f"your saved {name} could help you stay dry."
+            ),
+            "seasonal_context": (
+                f"It's {signals.get('season_label', 'the season')} — {name} from your list fits what you may need now."
+            ),
+            "event_based": (
+                f"{signals.get('event_label', name)} is coming up in {signals.get('days_until', 'a few')} days — "
+                f"grab {name} while it's available."
+            ),
+            "replenishment_reminder": (
+                f"You bought {name} about {signals.get('days_since_purchase', '30')} days ago — "
+                f"it may be time to restock."
+            ),
         }
         return templates.get(reason_type, f"Recommended based on your saved shopping list: {name}.")

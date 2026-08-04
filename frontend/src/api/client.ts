@@ -56,6 +56,13 @@ export const api = {
   getAdminMatches: () => request<AdminMatchesResponse>("/v1/admin/matches"),
   getPipelineMetrics: () => request<PipelineMetricsResponse>("/v1/admin/pipeline/metrics"),
   getFlags: () => request<FeatureFlagsResponse>("/v1/flags"),
+  listCatalogProducts: (params?: { category?: string; q?: string }) => {
+    const search = new URLSearchParams();
+    if (params?.category) search.set("category", params.category);
+    if (params?.q) search.set("q", params.q);
+    const q = search.toString();
+    return request<CatalogProductsResponse>(`/v1/integrations/catalog/products${q ? `?${q}` : ""}`);
+  },
   getCart: () => request<CartResponse>("/v1/integrations/cart"),
   addCartItem: (skuId: string, quantity = 1) =>
     request<{ ok: boolean; sku_id: string }>("/v1/integrations/cart/items", {
@@ -78,6 +85,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ order_id: orderId, sku_ids: skuIds }),
     }),
+  getCheckoutContext: () => request<CheckoutContextResponse>("/v1/context/checkout"),
 };
 
 export type LocationCreate = {
@@ -97,12 +105,14 @@ export type StatusFilter = "pending" | "purchased" | "all";
 export type UslItemCreate = {
   raw_intent: string;
   priority?: number;
+  event_date?: string | null;
 };
 
 export type UslItemUpdate = {
   raw_intent?: string;
   status?: UslItemStatus;
   priority?: number;
+  event_date?: string | null;
 };
 
 export type CatalogMatchResponse = {
@@ -127,6 +137,7 @@ export type UslItemResponse = {
   status: UslItemStatus;
   match_status: MatchStatus;
   priority: number | null;
+  event_date: string | null;
   created_at: string;
   updated_at: string;
   purchased_at: string | null;
@@ -182,6 +193,19 @@ export type FeatureFlagsResponse = {
   usl_checkout_recommendations: boolean;
 };
 
+export type CatalogProduct = {
+  sku_id: string;
+  product_name: string;
+  category: string;
+  price: number;
+  image_url: string | null;
+};
+
+export type CatalogProductsResponse = {
+  count: number;
+  products: CatalogProduct[];
+};
+
 export type CartResponse = {
   items: Array<{ sku_id: string; quantity: number }>;
 };
@@ -218,4 +242,23 @@ export type RecommendationActionResponse = {
 export type OrderCompletedResponse = {
   order_id: string;
   usl_items_marked_purchased: number;
+};
+
+export type CheckoutContextResponse = {
+  season: string;
+  season_label: string;
+  weather: {
+    forecast: string;
+    severity: string;
+    days_ahead: number | null;
+    max_precipitation_mm?: number | null;
+  };
+  cart_categories: string[];
+  upcoming_events: Array<{
+    item_id: string;
+    event_date: string;
+    days_until: number;
+    label: string;
+  }>;
+  festival: string | null;
 };

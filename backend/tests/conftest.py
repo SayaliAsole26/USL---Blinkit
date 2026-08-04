@@ -49,6 +49,7 @@ def db_engine():
         Base.metadata.tables["product_availability"],
         Base.metadata.tables["catalog_matches"],
         Base.metadata.tables["recommendation_events"],
+        Base.metadata.tables["purchase_history"],
     ]
     Base.metadata.create_all(bind=engine, tables=tables)
     yield engine

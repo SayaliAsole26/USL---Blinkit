@@ -8,6 +8,7 @@ from app.config import Settings, get_settings
 from app.db.models import CatalogMatch, UslItem, UslItemMetadata
 from app.db.session import get_db
 from app.services.pipeline_metrics import get_path_a_metrics, get_path_b_metrics
+from app.services.ranker_config import RankerConfigService
 from app.services.redis_client import get_redis_client
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -62,6 +63,25 @@ def list_match_debug(
 @router.get("/pipeline/metrics")
 def pipeline_metrics(_: None = Depends(_require_admin)):
     return {"path_a": get_path_a_metrics(), "path_b": get_path_b_metrics()}
+
+
+@router.get("/ranker/weights")
+def ranker_weights(
+    settings: Settings = Depends(get_settings),
+    _: None = Depends(_require_admin),
+):
+    weights = RankerConfigService(settings).get_weights()
+    return {
+        "memory_reminder": weights.memory_reminder,
+        "replenishment_reminder": weights.replenishment_reminder,
+        "weather_context": weights.weather_context,
+        "seasonal_context": weights.seasonal_context,
+        "event_based": weights.event_based,
+        "cross_category_discovery": weights.cross_category_discovery,
+        "shopping_completion": weights.shopping_completion,
+        "acceptance_boost": weights.acceptance_boost,
+        "dismissal_penalty": weights.dismissal_penalty,
+    }
 
 
 @router.get("/pipeline/dlq")

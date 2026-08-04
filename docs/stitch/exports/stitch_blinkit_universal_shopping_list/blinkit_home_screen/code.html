@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Blinkit - Quick Commerce App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#241a00",
+                        "surface": "#fcf9f8",
+                        "primary-fixed": "#8ffb87",
+                        "price-red": "#E74C3C",
+                        "secondary-container": "#ffcb13",
+                        "border-subtle": "#E8ECEF",
+                        "inverse-on-surface": "#f3f0ef",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#f9f4ff",
+                        "on-background": "#1b1b1b",
+                        "ai-text": "#6C5CE7",
+                        "surface-dim": "#dcd9d9",
+                        "primary": "#006714",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#74dd6e",
+                        "on-secondary-container": "#6f5700",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#f2c000",
+                        "on-primary-fixed-variant": "#00530e",
+                        "inverse-surface": "#313030",
+                        "tertiary": "#523fcc",
+                        "surface-container-low": "#f6f3f2",
+                        "on-surface-variant": "#3f4a3c",
+                        "ai-surface": "#F0EDFF",
+                        "secondary-fixed": "#ffe08e",
+                        "surface-container-high": "#eae7e7",
+                        "on-surface": "#1b1b1b",
+                        "on-tertiary-fixed": "#160066",
+                        "surface-variant": "#e5e2e1",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e4dfff",
+                        "surface-container": "#f0eded",
+                        "outline": "#6f7a6a",
+                        "on-primary-container": "#e0ffd7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#74dd6e",
+                        "surface-tint": "#006e16",
+                        "tertiary-fixed-dim": "#c6bfff",
+                        "surface-gray": "#F4F6F8",
+                        "on-primary-fixed": "#002203",
+                        "tertiary-container": "#6b5be6",
+                        "outline-variant": "#becab7",
+                        "on-secondary-fixed-variant": "#584400",
+                        "secondary": "#755b00",
+                        "on-tertiary-fixed-variant": "#4029ba",
+                        "primary-container": "#0c831f",
+                        "background": "#fcf9f8",
+                        "brand-yellow": "#F7C400"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.25rem",
+                        "margin-page": "1rem",
+                        "gutter-card": "0.75rem",
+                        "stack-lg": "1rem",
+                        "stack-md": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "cta-text": ["Inter"],
+                        "badge-label": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "body-primary": ["Inter"],
+                        "body-secondary": ["Inter"],
+                        "section-title": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "price-display": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "cta-text": ["16px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "badge-label": ["11px", {"lineHeight": "14px", "fontWeight": "700"}],
+                        "display-hero": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-primary": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-secondary": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "section-title": ["16px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "body-medium": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "price-display": ["14px", {"lineHeight": "18px", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-header {
+            background-color: #F7C400;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Top App Bar -->
+<header class="glass-header sticky top-0 z-50 transition-all duration-300">
+<div class="px-margin-page pt-4 pb-3 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-[14px] leading-tight">Delivering to</span>
+<div class="flex items-center gap-1">
+<span class="font-extrabold text-[16px] leading-tight">560102 - Indiranagar</span>
+<span class="material-symbols-outlined text-sm" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
+<span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="relative group">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+</div>
+<input class="w-full h-12 bg-white rounded-xl pl-10 pr-4 border-none focus:ring-2 focus:ring-primary/20 text-body-primary font-body-primary shadow-sm transition-all" placeholder="Search 'milk, bread, chips'" type="text"/>
+</div>
+</div>
+</header>
+<main class="pb-24">
+<!-- AI Signal Pill Section (Universal List Quick Access) -->
+<div class="px-margin-page mt-4">
+<div class="bg-ai-surface rounded-xl p-4 flex items-center justify-between shadow-sm border border-ai-text/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+<span class="text-sm">✨</span>
+</div>
+<div>
+<h3 class="font-section-title text-section-title text-ai-text">My Universal List</h3>
+<p class="text-body-secondary font-body-secondary text-ai-text/70">82% of items available nearby</p>
+</div>
+</div>
+<button class="bg-ai-text text-white px-4 py-2 rounded-lg font-cta-text text-cta-text flex items-center gap-1 active:scale-95 transition-transform">
+                    View
+                    <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Categories Grid -->
+<section class="mt-6 px-margin-page">
+<div class="grid grid-cols-5 gap-2">
+<div class="flex flex-col items-center gap-2">
+<div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+</div>
+<span class="text-badge-label font-badge-label">All</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A macro photograph of fresh green vegetables and grocery items on a clean white surface. High-key lighting, vibrant colors, minimalist product photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByc2hvEQPt-QKBozBppfiqeNsAbZ1hzrGq3d1bJqoFBt43ZBBUuLr2FL3mwJHOWSsmWpBrTUmqUmLQBY8PaawsFlXSD4oscq8zyUU4Soq2vnAPqDrMIcZzKOBWN4-YuOtZayFZcnWdDa-BtuB6GyygIiTpLfRWtlYN7rUr7scBfFp_UDaYCV9XCkMiLvwK_Hp3sF4G20DDqUEiv31ws4BfGRxjlJz0gvukiZiF14agzhrGnOoK4-91"/>
+</div>
+<span class="text-badge-label font-badge-label">Grocery</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up of a colorful variety of exotic tropical fruits like mango, pineapple, and berries arranged artistically on a white marble background. Soft morning sunlight, clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXrU6qK6KDuLojRGik-m_yeIV6D6fuXojaqL_NSURRB_152ezfwPa0FyM35LcHXWyuQL6IQaAcGgoJMJu2w2sW3MEc1u_PYXqoisGv4ir7H4GPYr65Jq6jLjwmSLbzK_gdiJJnZgVQVljwdoLuouV2ZL-zZs6SoTbGh2YHdO9zjOkIhOqXVSy8nJFeA5O1py_AZ4A45CsNRDX6Vqt79YOJ0ik4DefEMyR8umWL7uQn9GG-4K6Xbc0d"/>
+</div>
+<span class="text-badge-label font-badge-label">Fruits</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A variety of packaged gourmet snacks including nuts and crisps, beautifully arranged on a minimalist background. Contemporary commercial product photography, warm and inviting palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtEwZzpG12xCCU_MGx8phSSPWKQqT4Y7hx4bUToeFzOoaSiD7Q8CyXNADBqOkrSri2WozdSdX1-ZJRNsEOclNxBwZjqYRF753T8RpuiU-QGo3sy3GcD9Q0zIKxrfcuaRuG_OH9CptFw1NJZlhLJJ_S4IxNdzfV8A6yGAQaTjy2dMzazorlmCa-bmpfA-3LxazcP4D2mZvCDZRMg3gDcqi09-mr7g3iQ6PmZCdGF96EvBB_0w49ZoNy"/>
+</div>
+<span class="text-badge-label font-badge-label">Snacks</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center active:scale-90 transition-transform overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Premium skincare and beauty products in elegant packaging, arranged neatly on a sleek white ceramic surface. Soft shadows, professional studio lighting, luxury cosmetic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIRw8qGL-S3iZJWhQ3qWhVP_oVMu3DRYKLJ8QDCdYmxWhQ-OQRBYZ1yzggnXiI61wL-t4MYf3UkKXi7nvr-zDbDmrwGrtOkKTF5tKuY2wtds7I_LxUIWk8jnEDdM2WSZ3jfd4kR6mefaBxiJh0_mMeI5QOUqEFl1Ddmxqk2nLdsbNgTlRF-YTbv5Ce7VqMfWetSAK1t3YAihBWKtGk-vdiylDnR7rHC5Y3Jygvbbw8znoTYsfCAgQL"/>
+</div>
+<span class="text-badge-label font-badge-label">Beauty</span>
+</div>
+</div>
+</section>
+<!-- Promotional Banner -->
+<section class="mt-6 px-margin-page">
+<div class="relative w-full h-36 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-500 to-blue-400 group">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+</div>
+<div class="absolute inset-0 p-6 flex flex-col justify-center gap-1 z-10">
+<h2 class="text-white font-display-hero text-display-hero uppercase tracking-tight">Monsoon<br/>Essentials</h2>
+<div class="inline-block mt-2">
+<span class="bg-white text-blue-600 px-3 py-1 rounded-full text-badge-label font-badge-label">Up to 30% OFF</span>
+</div>
+</div>
+<div class="absolute bottom-0 right-4 w-40 h-40">
+<img class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-500" data-alt="A stylish blue umbrella and a pair of yellow rain boots isolated against a clean background, designed as a minimalist flat-lay graphic illustration. Modern, playful monsoon theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz-jDNPhumQwRZd3As4N0gOWGejWNA6rmR25QE8kcnVk1fZPr3Q7ceJ4CBKmNHHg0iOQl3LdY2C5V7L4qr7sitsHmXIoPUBhvDzZYTgk172TzVLAYLYWvZDWWjqi-Qsx4kZrxVvqUqHec_9qEf7ExduEnNTDAZiBLkgYSbx0mSWeEzCCLLgAmjt81w5Xj0z6HtQvFSS-GMIRZO0yQVz4PnPy294p_gtCESoYSak9ek4UZiCtsR5aNR"/>
+</div>
+</div>
+</section>
+<!-- Bestsellers -->
+<section class="mt-8">
+<div class="px-margin-page flex justify-between items-center mb-4">
+<h2 class="font-section-title text-section-title">Bestsellers</h2>
+<button class="text-primary font-cta-text text-cta-text flex items-center">
+                    See all
+                    <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 px-margin-page pb-4">
+<!-- Product 1 -->
+<div class="min-w-[140px] flex flex-col gap-2 group">
+<div class="w-full aspect-square bg-white rounded-xl border border-border-subtle p-2 flex items-center justify-center relative overflow-hidden">
+<img class="w-3/4 object-contain group-hover:scale-110 transition-transform" data-alt="A clean product shot of Amul Taaza Milk in a 1-liter Tetra Pak. White background, vibrant colors, high-resolution commercial grocery photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDKIOhreNSubwA1L0jV1u7-hVRZjQs3yKVZQ77qjIPbqI8wWCTS1saDhQRqtOj1Xz_vbKXtkOE3bfyLDy8bEzGH9K_F0Vc2s6k4HZs1RbdbWhS9kOJdHCgP4OZzuW2-xsB1as8FhX59J2o6g_Vdt5BTTZZkpYhxHGn4_OOGiZEIqDJy7rI_bj0gm34MrvsVMxBri_4mCkFDL2T5xNCqPEZMaCzTN618V_CCIVkHZ7MZ82G5ihoAr72"/>
+<div class="absolute top-2 right-2 bg-primary/10 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded">15% OFF</div>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-body-medium font-body-medium truncate">Amul Taaza Milk</span>
+<span class="text-body-secondary font-body-secondary text-on-surface-variant">1L</span>
+<div class="flex items-center justify-between mt-1">
+<div class="flex flex-col">
+<span class="text-price-display font-price-display">₹66</span>
+<span class="text-[10px] line-through text-on-surface-variant">₹78</span>
+</div>
+<button class="px-3 py-1.5 rounded-lg border border-primary text-primary font-cta-text text-[12px] hover:bg-primary hover:text-white transition-colors active:scale-90">ADD</button>
+</div>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="min-w-[140px] flex flex-col gap-2 group">
+<div class="w-full aspect-square bg-white rounded-xl border border-border-subtle p-2 flex items-center justify-center relative overflow-hidden">
+<img class="w-3/4 object-contain group-hover:scale-110 transition-transform" data-alt="A package of Britannia brown bread, showing the fresh slices through the transparent window. Studio product lighting, realistic grocery shop aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2y9MfvPRD9SnGfI9oaXi5KYyp0RnQGQfqLb-BAeK-iFJFx0v5Nrz0sywbKVk0jKCQiLV1XfiS6K4N0icaYmS1JBYEl61FO1OGIusuzyG5r6KEeQnQcy3d6254myc7n9qg72BOm2gW2IZxyljGFEVyiXUbKrKKVTeRQ-6Q01H18b5LfMZXlF1hC6xWJpdA3uhpYRe6AOW0sCG848FKTys8NPcxH_EAHO5d6uV2fdWjBOOWOslEQT61"/>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-body-medium font-body-medium truncate">Brown Bread</span>
+<span class="text-body-secondary font-body-secondary text-on-surface-variant">Britannia</span>
+<div class="flex items-center justify-between mt-1">
+<div class="flex flex-col">
+<span class="text-price-display font-price-display">₹45</span>
+<span class="text-[10px] line-through text-on-surface-variant">₹50</span>
+</div>
+<button class="px-3 py-1.5 rounded-lg border border-primary text-primary font-cta-text text-[12px] hover:bg-primary hover:text-white transition-colors active:scale-90">ADD</button>
+</div>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="min-w-[140px] flex flex-col gap-2 group">
+<div class="w-full aspect-square bg-white rounded-xl border border-border-subtle p-2 flex items-center justify-center relative overflow-hidden">
+<img class="w-3/4 object-contain group-hover:scale-110 transition-transform" data-alt="A tray of fresh white eggs, six pack carton, isolated on a white background. Professional food photography, clean and bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADK3N8iR-STN-h84BWJzyxXc11KJnG1rhVoYmPVZiVH9HVWPsJug-S6yJrIuZ1mO6ugJWGjkhtxVycnhiKNdNhKLs34W0Wva0LH8Pvwg-FXf0vlPqDJ4RIyZphFmqk6WOQz-GdLr77pzxeULxxtxdE5RqjXAFLs2DReBSnPWA_IadgZR7RoAnBB2I-cKG_FDZ0HznOXT-aek_Y9kqifYGhKpcrLnc4UcJe_HtjtOHhTeeoAmsKipkv"/>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-body-medium font-body-medium truncate">Fresh Eggs (12)</span>
+<span class="text-body-secondary font-body-secondary text-on-surface-variant">Farm Fresh</span>
+<div class="flex items-center justify-between mt-1">
+<div class="flex flex-col">
+<span class="text-price-display font-price-display">₹85</span>
+</div>
+<button class="px-3 py-1.5 rounded-lg border border-primary text-primary font-cta-text text-[12px] hover:bg-primary hover:text-white transition-colors active:scale-90">ADD</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Shopping Completion Score Widget -->
+<section class="mt-8 px-margin-page">
+<div class="bg-white rounded-2xl p-5 shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-8 -mt-8"></div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-section-title text-section-title">Shopping Completion Score</h3>
+<p class="text-body-secondary font-body-secondary text-on-surface-variant mt-1">Add a few more items to finish your weekly list</p>
+</div>
+<span class="text-headline-sm font-headline-sm text-primary">82%</span>
+</div>
+<div class="w-full h-2.5 bg-border-subtle rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 82%;"></div>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="lightbulb" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<p class="text-body-secondary font-body-secondary">You usually buy <b>Eggs</b> every 5 days. Add now?</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-16 bg-surface border-t border-border-subtle px-2 pb-safe z-[60] shadow-lg">
+<button class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-badge-label font-badge-label mt-0.5">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:bg-surface-container-lowest transition-all">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-badge-label font-badge-label mt-0.5">Categories</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:bg-surface-container-lowest transition-all relative">
+<span class="material-symbols-outlined" data-icon="format_list_bulleted">format_list_bulleted</span>
+<span class="text-badge-label font-badge-label mt-0.5">My List</span>
+<!-- Notification Dot for My List -->
+<div class="absolute top-0 right-1 w-2 h-2 bg-error rounded-full border-2 border-surface"></div>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:bg-surface-container-lowest transition-all">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-badge-label font-badge-label mt-0.5">Orders</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:bg-surface-container-lowest transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-badge-label font-badge-label mt-0.5">Account</span>
+</button>
+</nav>
+<!-- Interaction Script -->
+<script>
+        // Simple scroll header effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.style.paddingTop = '8px';
+                header.style.paddingBottom = '8px';
+            } else {
+                header.classList.remove('shadow-md');
+                header.style.paddingTop = '16px';
+                header.style.paddingBottom = '12px';
+            }
+        });
+
+        // Add to cart feedback
+        const addButtons = document.querySelectorAll('button:contains("ADD")');
+        addButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.textContent = 'ADDED';
+                this.classList.add('bg-primary', 'text-white');
+                setTimeout(() => {
+                    this.textContent = 'ADD';
+                    this.classList.remove('bg-primary', 'text-white');
+                }, 2000);
+            });
+        });
+    </script>
+</body></html>

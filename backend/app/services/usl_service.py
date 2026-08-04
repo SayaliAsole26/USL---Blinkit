@@ -39,6 +39,7 @@ class UslService:
             status=UslItemStatus.PENDING.value,
             match_status="queued",
             priority=payload.priority,
+            event_date=payload.event_date,
         )
         self.db.add(item)
         self.db.commit()
@@ -66,6 +67,8 @@ class UslService:
                 item.purchased_at = datetime.now(timezone.utc)
         if payload.priority is not None:
             item.priority = payload.priority
+        if payload.event_date is not None or "event_date" in payload.model_fields_set:
+            item.event_date = payload.event_date
 
         if intent_changed:
             item.match_status = "queued"
@@ -119,6 +122,7 @@ class UslService:
             status=item.status,
             match_status=item.match_status,
             priority=item.priority,
+            event_date=item.event_date,
             created_at=item.created_at,
             updated_at=item.updated_at,
             purchased_at=item.purchased_at,

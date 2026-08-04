@@ -22,12 +22,14 @@ class MatchStatus(StrEnum):
 class UslItemCreate(BaseModel):
     raw_intent: str = Field(..., min_length=1, max_length=500)
     priority: int | None = Field(default=None, ge=1, le=5)
+    event_date: datetime | None = None
 
 
 class UslItemUpdate(BaseModel):
     raw_intent: str | None = Field(default=None, min_length=1, max_length=500)
     status: UslItemStatus | None = None
     priority: int | None = Field(default=None, ge=1, le=5)
+    event_date: datetime | None = None
 
 
 class CatalogMatchResponse(BaseModel):
@@ -66,6 +68,7 @@ class UslItemResponse(BaseModel):
     status: UslItemStatus
     match_status: MatchStatus
     priority: int | None
+    event_date: datetime | None = None
     created_at: datetime
     updated_at: datetime
     purchased_at: datetime | None

@@ -1,19 +1,43 @@
+import { useCallback, useEffect, useState } from "react";
 import { AdminDebug } from "./pages/AdminDebug";
 import CheckoutPage from "./pages/Checkout";
-import { useEffect, useState } from "react";
-import { api, LocationResponse } from "./api/client";
 import Onboarding from "./pages/Onboarding";
+import OrderSuccess from "./pages/OrderSuccess";
+import ShopHome from "./pages/ShopHome";
 import UslHome from "./pages/UslHome";
+import WelcomeOnboarding from "./pages/WelcomeOnboarding";
+import { api, LocationResponse, UslItemResponse } from "./api/client";
+import BottomNav, { NavTab } from "./components/layout/BottomNav";
 
-type AppState = "loading" | "onboarding" | "home" | "checkout" | "admin";
+type AppState =
+  | "loading"
+  | "welcome"
+  | "onboarding"
+  | "home"
+  | "shop"
+  | "checkout"
+  | "orderSuccess"
+  | "admin";
 
 const ADMIN_DEBUG = import.meta.env.VITE_ADMIN_DEBUG === "true";
+const WELCOME_KEY = "usl_welcome_seen";
 
 export default function App() {
   const [state, setState] = useState<AppState>("loading");
   const [location, setLocation] = useState<LocationResponse | null>(null);
   const [checkoutEnabled, setCheckoutEnabled] = useState(false);
+  const [uslItems, setUslItems] = useState<UslItemResponse[]>([]);
+  const [orderMessage, setOrderMessage] = useState("");
   const [error, setError] = useState("");
+
+  const loadUslMeta = useCallback(async () => {
+    try {
+      const data = await api.listItems("all");
+      setUslItems(data.items);
+    } catch {
+      setUslItems([]);
+    }
+  }, []);
 
   useEffect(() => {
     if (window.location.hash === "#admin" && ADMIN_DEBUG) {
@@ -22,60 +46,117 @@ export default function App() {
     }
 
     Promise.all([api.getLocation().catch(() => null), api.getFlags().catch(() => null)]).then(([loc, flags]) => {
+      setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false);
       if (!loc) {
-        setState("onboarding");
+        const seenWelcome = localStorage.getItem(WELCOME_KEY);
+        setState(seenWelcome ? "onboarding" : "welcome");
         return;
       }
       setLocation(loc);
-      setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false);
-      setState("home");
+      loadUslMeta();
+      setState("shop");
     });
-  }, []);
+  }, [loadUslMeta]);
+
+  function handleWelcomeContinue() {
+    localStorage.setItem(WELCOME_KEY, "1");
+    setState("onboarding");
+  }
 
   function handleOnboardingComplete() {
     api
       .getLocation()
       .then((loc) => {
         setLocation(loc);
-        setState("home");
-        return api.getFlags();
+        return loadUslMeta().then(() => loc);
       })
-      .then((flags) => setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false))
+      .then(() => setState("home"))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load location"));
+    api.getFlags().then((flags) => setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false)).catch(() => {});
   }
+
+  function navigateTab(tab: NavTab) {
+    setState(tab === "shop" ? "shop" : "home");
+  }
+
+  const showBottomNav = state === "home" || state === "shop";
+  const availableCount = uslItems.filter((i) => i.catalog_matches.some((m) => m.availability_status !== "unavailable")).length;
+  const uslAvailablePct = uslItems.length === 0 ? 0 : Math.round((availableCount / uslItems.length) * 100);
 
   if (state === "loading") {
     return (
-      <div className="app-shell">
-        <p className="muted center">Loading USL…</p>
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <p className="text-sm text-on-surface-variant">Loading Blinkit…</p>
       </div>
     );
   }
 
+  if (state === "admin" && ADMIN_DEBUG) {
+    return <AdminDebug />;
+  }
+
   return (
-    <div className="app-shell">
-      <div className="top-bar">
-        <span className="logo">Blinkit USL</span>
-        <span className="phase-badge">Phase 3</span>
-        {ADMIN_DEBUG && (
-          <button type="button" className="btn-ghost" onClick={() => setState(state === "admin" ? "home" : "admin")}>
-            {state === "admin" ? "Back to list" : "Match debug"}
-          </button>
-        )}
-      </div>
-      {error && <p className="error center">{error}</p>}
-      {state === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
+    <div className="mx-auto min-h-screen max-w-md bg-surface">
+      {error && (
+        <p className="bg-error-container px-4 py-2 text-center text-sm text-error">{error}</p>
+      )}
+
+      {state === "welcome" && (
+        <WelcomeOnboarding onContinue={handleWelcomeContinue} onSkip={() => setState("onboarding")} />
+      )}
+
+      {state === "onboarding" && (
+        <Onboarding onComplete={handleOnboardingComplete} onBack={() => setState("welcome")} />
+      )}
+
       {state === "home" && location && (
         <UslHome
           location={location}
-          checkoutEnabled={checkoutEnabled}
-          onGoToCheckout={() => setState("checkout")}
+          onContinueShopping={() => {
+            loadUslMeta();
+            setState("shop");
+          }}
         />
       )}
-      {state === "checkout" && location && (
-        <CheckoutPage location={location} onBack={() => setState("home")} />
+
+      {state === "shop" && location && (
+        <ShopHome
+          location={location}
+          checkoutEnabled={checkoutEnabled}
+          uslAvailablePct={uslAvailablePct}
+          onGoToCheckout={() => setState("checkout")}
+          onGoToUsl={() => setState("home")}
+        />
       )}
-      {state === "admin" && ADMIN_DEBUG && <AdminDebug />}
+
+      {state === "checkout" && location && (
+        <CheckoutPage
+          location={location}
+          onBack={() => setState("shop")}
+          onOrderPlaced={(msg) => {
+            setOrderMessage(msg);
+            setState("orderSuccess");
+          }}
+        />
+      )}
+
+      {state === "orderSuccess" && (
+        <OrderSuccess
+          message={orderMessage}
+          onDone={() => {
+            loadUslMeta();
+            setState("shop");
+          }}
+        />
+      )}
+
+      {showBottomNav && (
+        <BottomNav
+          active={state === "shop" ? "shop" : "list"}
+          onNavigate={navigateTab}
+          listHasItems={uslItems.length > 0}
+        />
+      )}
     </div>
   );
 }

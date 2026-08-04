@@ -16,26 +16,26 @@ export function AdminDebug() {
   }, []);
 
   return (
-    <div className="page">
-      <div className="hero compact">
-        <span className="badge">Admin debug</span>
-        <h1>Path A match quality</h1>
-        <p className="hint">Review catalog matches and pipeline metrics (Phase 2).</p>
+    <div className="min-h-screen bg-surface p-4 pb-10">
+      <div className="mb-4">
+        <span className="rounded-full bg-ai-surface px-3 py-1 text-[11px] font-bold text-ai-text">Admin debug</span>
+        <h1 className="mt-2 text-xl font-bold">Path A match quality</h1>
+        <p className="text-sm text-on-surface-variant">Review catalog matches and pipeline metrics.</p>
       </div>
 
-      {error && <p className="error">{error}</p>}
+      {error && <p className="mb-4 text-sm text-error">{error}</p>}
 
       {metrics && (
-        <div className="card">
-          <h2>Pipeline metrics</h2>
-          <h3>Path A (ingest)</h3>
-          <ul className="metrics-list">
+        <div className="mb-4 rounded-xl border border-border-subtle bg-white p-4 card-shadow">
+          <h2 className="mb-2 font-bold">Pipeline metrics</h2>
+          <h3 className="text-sm font-semibold text-primary">Path A (ingest)</h3>
+          <ul className="mb-3 list-inside list-disc text-sm text-on-surface-variant">
             <li>Runs: {metrics.path_a.runs}</li>
             <li>Avg shortlist: {metrics.path_a.avg_shortlist_size}</li>
             <li>Max LLM candidates: {metrics.path_a.max_llm_candidate_size}</li>
           </ul>
-          <h3>Path B (checkout)</h3>
-          <ul className="metrics-list">
+          <h3 className="text-sm font-semibold text-primary">Path B (checkout)</h3>
+          <ul className="list-inside list-disc text-sm text-on-surface-variant">
             <li>Runs: {metrics.path_b.runs}</li>
             <li>Avg shortlist: {metrics.path_b.avg_shortlist_size}</li>
             <li>Avg output: {metrics.path_b.avg_output_count}</li>
@@ -45,18 +45,18 @@ export function AdminDebug() {
       )}
 
       {matches && (
-        <div className="card">
-          <h2>Recent matches</h2>
-          {matches.items.length === 0 && <p className="muted">No processed items yet.</p>}
+        <div className="rounded-xl border border-border-subtle bg-white p-4 card-shadow">
+          <h2 className="mb-3 font-bold">Recent matches</h2>
+          {matches.items.length === 0 && <p className="text-sm text-on-surface-variant">No processed items yet.</p>}
           {matches.items.map((item) => (
-            <div key={item.item_id} className="debug-row">
-              <strong>{item.raw_intent}</strong>
-              <span className={`match-pill match-${item.match_status}`}>{item.match_status}</span>
-              <p className="muted">
+            <div key={item.item_id} className="border-b border-border-subtle py-3 last:border-0">
+              <strong className="text-sm">{item.raw_intent}</strong>
+              <span className="ml-2 rounded-full bg-surface-gray px-2 py-0.5 text-xs capitalize">{item.match_status}</span>
+              <p className="text-xs text-on-surface-variant">
                 Shortlist {item.shortlist_size ?? "—"} · {item.processing_latency_ms ?? "—"} ms
               </p>
               {item.matches.map((match) => (
-                <p key={match.sku_id}>
+                <p key={match.sku_id} className="text-xs text-on-surface-variant">
                   #{match.rank} {match.sku_id} · {Math.round(match.confidence * 100)}% · {match.availability_status}
                 </p>
               ))}

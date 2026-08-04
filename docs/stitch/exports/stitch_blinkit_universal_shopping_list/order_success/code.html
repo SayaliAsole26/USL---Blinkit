@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Placed - Blinkit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#241a00",
+                        "surface": "#fcf9f8",
+                        "primary-fixed": "#8ffb87",
+                        "price-red": "#E74C3C",
+                        "secondary-container": "#ffcb13",
+                        "border-subtle": "#E8ECEF",
+                        "inverse-on-surface": "#f3f0ef",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#f9f4ff",
+                        "on-background": "#1b1b1b",
+                        "ai-text": "#6C5CE7",
+                        "surface-dim": "#dcd9d9",
+                        "primary": "#006714",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#74dd6e",
+                        "on-secondary-container": "#6f5700",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#f2c000",
+                        "on-primary-fixed-variant": "#00530e",
+                        "inverse-surface": "#313030",
+                        "tertiary": "#523fcc",
+                        "surface-container-low": "#f6f3f2",
+                        "on-surface-variant": "#3f4a3c",
+                        "ai-surface": "#F0EDFF",
+                        "secondary-fixed": "#ffe08e",
+                        "surface-container-high": "#eae7e7",
+                        "on-surface": "#1b1b1b",
+                        "on-tertiary-fixed": "#160066",
+                        "surface-variant": "#e5e2e1",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e4dfff",
+                        "surface-container": "#f0eded",
+                        "outline": "#6f7a6a",
+                        "on-primary-container": "#e0ffd7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#74dd6e",
+                        "surface-tint": "#006e16",
+                        "tertiary-fixed-dim": "#c6bfff",
+                        "surface-gray": "#F4F6F8",
+                        "on-primary-fixed": "#002203",
+                        "tertiary-container": "#6b5be6",
+                        "outline-variant": "#becab7",
+                        "on-secondary-fixed-variant": "#584400",
+                        "secondary": "#755b00",
+                        "on-tertiary-fixed-variant": "#4029ba",
+                        "primary-container": "#0c831f",
+                        "background": "#fcf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.25rem",
+                        "margin-page": "1rem",
+                        "gutter-card": "0.75rem",
+                        "stack-lg": "1rem",
+                        "stack-md": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "cta-text": ["Inter"],
+                        "badge-label": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "body-primary": ["Inter"],
+                        "body-secondary": ["Inter"],
+                        "section-title": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "price-display": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "cta-text": ["16px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "badge-label": ["11px", {"lineHeight": "14px", "fontWeight": "700"}],
+                        "display-hero": ["24px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-primary": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-secondary": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "section-title": ["16px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "body-medium": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "price-display": ["14px", {"lineHeight": "18px", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        
+        @keyframes success-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-success { animation: success-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        .celebration-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-primary text-on-surface min-h-screen flex flex-col items-center overflow-x-hidden">
+<!-- Celebration Background Effect -->
+<div class="celebration-canvas" id="canvas-container"></div>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[480px] min-h-screen flex flex-col px-margin-page py-10 relative z-20">
+<!-- Header - Suppressed Nav per Protocol for Transactional Success -->
+<div class="flex justify-between items-center mb-10">
+<div class="text-primary font-bold text-headline-sm">blinkit</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-on-surface">close</span>
+</button>
+</div>
+<!-- Central Success Graphic -->
+<div class="flex flex-col items-center text-center space-y-stack-lg mb-12">
+<div class="w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-lg animate-success">
+<span class="material-symbols-outlined text-on-primary text-[48px]" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="space-y-stack-sm">
+<h1 class="font-display-hero text-display-hero text-on-surface">Order Placed!</h1>
+<div class="inline-flex items-center px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant rounded-full text-badge-label font-badge-label uppercase tracking-wider">
+                    In 12 mins
+                </div>
+</div>
+<p class="text-body-primary text-on-surface-variant max-w-[280px]">
+                We've updated your <span class="font-bold">Universal Shopping List</span> based on your order.
+            </p>
+</div>
+<!-- Items Updated Card (Bento Style Layout) -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle mb-10">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-section-title text-section-title">Items updated</h2>
+<div class="flex items-center gap-1 bg-ai-surface px-2 py-0.5 rounded-full">
+<span class="text-[10px]">✨</span>
+<span class="text-badge-label font-badge-label text-ai-text">AI SYNC</span>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-gray overflow-hidden border border-border-subtle flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A premium, clinical-looking bottle of facial cleanser with minimalist green and white labeling, set against a soft studio background with gentle water ripples. The lighting is bright and clean, emphasizing purity and high-end skincare quality in a modern light-mode UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRQsk1NBHGn8-Xv3UQnBq8B7Hxo6hZfQ3YAx4qiVhZd5UuGUDNVyDH_n5hR4DV8z-mf_iT3ObeH02rlS-eBZOlPEO39FkG8IlK3ztDfvgw4VgwXpvhsevxiqoRGXHZdtk3zKeYLj1914CB7yZYDVnwMQ7HRSxta2Ir8BMU3Ag0KyLYF7Q7hNn02h7baaCQ__EVDNPIl53vdwv0GzIJmdwpYEdqQrDDq835df9Up2FpmzuTOwOq44Rr"/>
+</div>
+<div>
+<p class="font-body-medium text-body-medium text-on-surface">Face Wash</p>
+<p class="text-body-secondary text-on-surface-variant">Skincare</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="text-badge-label font-badge-label">Bought</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="h-[1px] bg-border-subtle w-full"></div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-gray overflow-hidden border border-border-subtle flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A sleek tube of high-performance sunscreen with bright yellow accents and clear SPF 50 labeling. The bottle sits on a clean, white surface with bright sunlight creating soft, natural shadows, embodying a fresh and energetic modern aesthetic consistent with a premium quick-commerce app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz9Gwt6H_Q_Mlyegfr-KxzqxHV0pPSMmB0EoXjYxwSbVLE04ZJZk80mdnmCQ3_-DGtiwRsWnbPdL_CQkUYIoQP0o_cxwNCThYKZa-jzV1e5WL5UWHn01OZB91XrtGRTVsyeeeSjTgN3StTTFeLsG3pHrhn2druS4sQbiyHQRu_jiOfiBnCszDhxjZlROs8yrCEcYeJ-eJruKdRtEGghTrQYLt9BTQUPZ5Q4UBMiNpT4fzX8UUmqK1C"/>
+</div>
+<div>
+<p class="font-body-medium text-body-medium text-on-surface">Sunscreen</p>
+<p class="text-body-secondary text-on-surface-variant">Skincare</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="text-badge-label font-badge-label">Bought</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="h-[1px] bg-border-subtle w-full"></div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-gray overflow-hidden border border-border-subtle flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="A high-quality bag of organic dog kibble with vibrant, friendly pet branding in a minimalist illustration style. The packaging looks premium and durable, positioned in a bright, modern light-mode setting that conveys trust and healthy nutrition for pets." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEDLM0qtYJwK3bgPxQXJmHQ1EWE4ympuQbpyfQavW8iOAVO-NrzlLW3WF3VrUVC4YcmmG-XZZsXG3DxFu1-DlQ8mDk17CJ5AzJGcSbtonaOst92-Nrza2cFGLkSYNcVRfdrjs5uBF5o_qggPHBeu4PWcTHGopwpR599Ra4Zeg-FvoCF14j90koxVbFihtxNSZZow1IVNH0nLVPIXoJERpTM4fuo2UZbWv74LIX77H6HzjTFAZnI8Qw"/>
+</div>
+<div>
+<p class="font-body-medium text-body-medium text-on-surface">Dog Food</p>
+<p class="text-body-secondary text-on-surface-variant">Pet Supplies</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="text-badge-label font-badge-label">Bought</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Completion Score Widget (High Visibility Card) -->
+<div class="bg-on-primary-container p-5 rounded-xl flex flex-col space-y-3 mb-10 border border-primary-fixed">
+<div class="flex justify-between items-center">
+<span class="text-body-medium font-body-medium text-primary">Shopping Completion Score</span>
+<span class="font-headline-sm text-headline-sm text-ai-text">82%</span>
+</div>
+<div class="w-full h-2 bg-border-subtle rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[82%] rounded-full transition-all duration-1000 ease-out" id="progress-bar" style="width: 0%;"></div>
+</div>
+<p class="text-body-secondary text-on-surface-variant">You're almost there! Just a few more items to finish your monthly list.</p>
+</div>
+<!-- Footer Actions -->
+<div class="mt-auto space-y-4">
+<button class="w-full h-12 rounded-lg border-2 border-primary text-primary font-cta-text text-cta-text active:scale-[0.96] transition-all flex items-center justify-center gap-2" onclick="location.reload()">
+                View My List
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<button class="w-full h-12 text-on-surface-variant font-cta-text text-cta-text hover:bg-surface-container-low transition-colors rounded-lg">
+                Continue Shopping
+            </button>
+</div>
+</main>
+<script>
+        // Micro-interactions and effects
+        window.addEventListener('DOMContentLoaded', () => {
+            // Animate progress bar
+            setTimeout(() => {
+                document.getElementById('progress-bar').style.width = '82%';
+            }, 500);
+
+            // Simple Confetti Effect
+            const canvasContainer = document.getElementById('canvas-container');
+            const colors = ['#0C831F', '#8ffb87', '#6C5CE7', '#ffcb13'];
+            
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = Math.random() * 8 + 4 + 'px';
+                confetti.style.height = Math.random() * 8 + 4 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.top = '-20px';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.opacity = Math.random();
+                confetti.style.borderRadius = '2px';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                canvasContainer.appendChild(confetti);
+                
+                const duration = Math.random() * 2 + 3;
+                const delay = Math.random() * 1;
+                
+                confetti.animate([
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${Math.random() * 100 - 50}px, 100vh) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], {
+                    duration: duration * 1000,
+                    delay: delay * 1000,
+                    easing: 'cubic-bezier(0, 0, 0.2, 1)',
+                    fill: 'forwards'
+                });
+            }
+        });
+    </script>
+</body></html>

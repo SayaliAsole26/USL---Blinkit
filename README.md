@@ -95,10 +95,14 @@ curl -X POST http://localhost:8000/v1/integrations/groq/smoke
 
 ## Deploy
 
+See **[Deployment Plan](docs/deployment-plan.md)** for Railway + Vercel setup.
+
 | Service | Platform | Config |
 | --- | --- | --- |
 | Frontend | Vercel | Root: `frontend/`, env `VITE_API_URL` |
-| Backend | Railway | `railway.toml`, Postgres + Redis plugins |
+| Backend API | Railway | `railway.toml`, `backend/Dockerfile`, `backend/docker-entrypoint.sh` |
+| Celery worker | Railway (2nd service) | Start command: `/app/start-worker.sh` |
+| Postgres + Redis | Railway plugins | Reference `DATABASE_URL`, `REDIS_URL` |
 
 ## Project structure
 

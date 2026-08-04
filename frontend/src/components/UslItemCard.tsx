@@ -1,55 +1,81 @@
-import { formatStatus } from "./StatusFilter";
 import { CatalogMatchResponse, MatchStatus, UslItemResponse } from "../api/client";
+import Icon from "./layout/Icon";
 
 type Props = {
   item: UslItemResponse;
   onEdit: (item: UslItemResponse) => void;
   onDelete: (itemId: string) => void;
+  available?: boolean;
 };
 
 function formatMatchStatus(status: MatchStatus): string {
   return status.replace(/_/g, " ");
 }
 
-function AvailabilityBadge({ status }: { status: string }) {
-  const cls = status === "available" ? "avail-ok" : status === "unknown" ? "avail-unknown" : "avail-bad";
-  return <span className={`avail-badge ${cls}`}>{status}</span>;
-}
-
-export default function UslItemCard({ item, onEdit, onDelete }: Props) {
+export default function UslItemCard({ item, onEdit, onDelete, available = true }: Props) {
   const topMatch: CatalogMatchResponse | undefined = item.catalog_matches[0];
 
+  if (!available) {
+    return (
+      <div className="flex items-center gap-4 rounded-xl border border-border-subtle bg-surface-gray p-3 opacity-80">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-surface-container grayscale">
+          {topMatch?.image_url ? (
+            <img src={topMatch.image_url} alt="" className="h-full w-full object-contain p-2" />
+          ) : (
+            <Icon name="inventory_2" className="text-on-surface-variant" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold">{item.raw_intent}</p>
+          <p className="text-xs text-on-surface-variant">Unavailable at your location</p>
+        </div>
+        <button type="button" className="rounded-lg border border-outline-variant bg-surface-container-high px-4 py-1.5 text-xs font-bold text-on-surface-variant">
+          Notify Me
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <article className="item-card">
-      <div className="item-main">
-        <h3>{item.raw_intent}</h3>
-        {item.normalized_name && item.normalized_name !== item.raw_intent && (
-          <p className="subintent">AI: {item.normalized_name}</p>
+    <div className="flex items-center gap-4 rounded-xl border border-border-subtle bg-surface-container-lowest p-3 card-shadow">
+      <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-surface-container-low">
+        {topMatch?.image_url ? (
+          <img src={topMatch.image_url} alt="" className="h-full w-full object-contain p-2" />
+        ) : (
+          <Icon name="shopping_bag" className="text-primary" />
         )}
-        <p className="meta">
-          <span className={`status-pill status-${item.status}`}>{formatStatus(item.status)}</span>
-          <span className={`match-pill match-${item.match_status}`}>{formatMatchStatus(item.match_status)}</span>
-          {item.priority && <span>Priority {item.priority}</span>}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-bold">{item.raw_intent}</p>
+        <p className="text-xs text-on-surface-variant">
+          {topMatch?.product_name ?? item.normalized_name ?? formatMatchStatus(item.match_status)}
         </p>
-        {topMatch && (
-          <div className="match-preview">
-            <strong>{topMatch.product_name}</strong>
-            {topMatch.price != null && <span> · ₹{topMatch.price}</span>}
-            <AvailabilityBadge status={topMatch.availability_status} />
-            <span className="confidence">{Math.round(topMatch.match_confidence * 100)}% match</span>
+        {topMatch?.price != null && (
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-sm font-bold">₹{topMatch.price}</span>
+            {item.match_status === "matched" && (
+              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                {Math.round(topMatch.match_confidence * 100)}% match
+              </span>
+            )}
           </div>
         )}
-        {item.match_status === "processing" && <p className="muted">Matching catalog SKUs…</p>}
-        {item.match_status === "unmatched" && <p className="muted">No catalog match yet — item stays on your list.</p>}
+        {item.match_status === "processing" && (
+          <p className="mt-1 text-xs text-on-surface-variant">Matching catalog SKUs…</p>
+        )}
       </div>
-      <div className="item-actions">
-        <button type="button" className="btn-ghost" onClick={() => onEdit(item)}>
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={() => onEdit(item)}
+          className="rounded-lg border border-primary px-4 py-1.5 text-sm font-bold text-primary hover:bg-primary/5"
+        >
           Edit
         </button>
-        <button type="button" className="btn-danger" onClick={() => onDelete(item.item_id)}>
-          Delete
+        <button type="button" onClick={() => onDelete(item.item_id)} className="text-xs text-error">
+          Remove
         </button>
       </div>
-    </article>
+    </div>
   );
 }

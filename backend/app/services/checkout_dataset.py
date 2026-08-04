@@ -12,6 +12,7 @@ from app.config import Settings, get_settings
 from app.db.models import CatalogMatch, CatalogProduct, RecommendationEvent, UserLocation, UslItem
 from app.integrations.mock_blinkit import get_cart_adapter, MockInventoryAdapter
 from app.pipeline.checkout_rules import CheckoutRulesEngine
+from app.services.personalization_service import PersonalizationContext, PersonalizationService
 
 
 @dataclass
@@ -21,6 +22,7 @@ class CheckoutDatasetBundle:
     cart_sku_ids: set[str]
     cart_categories: set[str]
     dismissed_item_ids: set[uuid.UUID]
+    personalization: PersonalizationContext
 
 
 class CheckoutDatasetService:
@@ -51,6 +53,8 @@ class CheckoutDatasetService:
             self.settings.dismiss_cooldown_days,
         )
 
+        personalization = PersonalizationService(self.db, self.settings).load(user_id)
+
         usl_items = list(
             self.db.scalars(
                 select(UslItem)
@@ -71,6 +75,8 @@ class CheckoutDatasetService:
                     "status": item.status,
                     "match_status": item.match_status,
                     "priority": item.priority,
+                    "event_date": item.event_date,
+                    "purchased_at": item.purchased_at,
                     "top_match": top_match,
                 }
             )
@@ -81,6 +87,7 @@ class CheckoutDatasetService:
             cart_sku_ids=cart_skus,
             cart_categories=cart_categories,
             dismissed_item_ids=dismissed_item_ids,
+            personalization=personalization,
         )
 
     def _get_top_match(self, item_id: uuid.UUID, pincode: str) -> dict | None:
@@ -112,7 +119,7 @@ class CheckoutDatasetService:
             .order_by(RecommendationEvent.created_at.desc())
         ).all()
         return [
-            {"item_id": row.item_id, "action": row.action, "created_at": row.created_at}
+            {"item_id": row.item_id, "action": row.action, "created_at": row.created_at, "sku_id": row.sku_id}
             for row in rows
             if row.item_id
         ]
