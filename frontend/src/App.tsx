@@ -9,7 +9,7 @@ import OrdersPage from "./pages/OrdersPage";
 import ShopHome from "./pages/ShopHome";
 import UslHome from "./pages/UslHome";
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
-import { api, ensureUserSession, LocationResponse, UslItemResponse } from "./api/client";
+import { api, ensureUserSession, LocationResponse, UslItemResponse, warmupApi } from "./api/client";
 import BottomNav, { NavTab } from "./components/layout/BottomNav";
 
 type AppState =
@@ -34,7 +34,6 @@ export default function App() {
   const [checkoutEnabled, setCheckoutEnabled] = useState(false);
   const [uslItems, setUslItems] = useState<UslItemResponse[]>([]);
   const [orderMessage, setOrderMessage] = useState("");
-  const [error, setError] = useState("");
   const [shopCategory, setShopCategory] = useState("all");
   const [locationReturnState, setLocationReturnState] = useState<AppState>("shop");
   const [changingLocation, setChangingLocation] = useState(false);
@@ -56,16 +55,18 @@ export default function App() {
 
     ensureUserSession();
 
-    Promise.all([api.getLocation().catch(() => null), api.getFlags().catch(() => null)]).then(([loc, flags]) => {
-      setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false);
-      if (!loc) {
-        const seenWelcome = localStorage.getItem(WELCOME_KEY);
-        setState(seenWelcome ? "onboarding" : "welcome");
-        return;
-      }
-      setLocation(loc);
-      loadUslMeta();
-      setState("home");
+    warmupApi().finally(() => {
+      Promise.all([api.getLocation().catch(() => null), api.getFlags().catch(() => null)]).then(([loc, flags]) => {
+        setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false);
+        if (!loc) {
+          const seenWelcome = localStorage.getItem(WELCOME_KEY);
+          setState(seenWelcome ? "onboarding" : "welcome");
+          return;
+        }
+        setLocation(loc);
+        loadUslMeta();
+        setState("home");
+      });
     });
   }, [loadUslMeta]);
 
@@ -138,10 +139,6 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-surface">
-      {error && (
-        <p className="bg-error-container px-4 py-2 text-center text-sm text-error">{error}</p>
-      )}
-
       {state === "welcome" && (
         <WelcomeOnboarding onContinue={handleWelcomeContinue} onSkip={() => setState("onboarding")} />
       )}

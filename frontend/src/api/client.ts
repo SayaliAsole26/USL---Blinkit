@@ -39,21 +39,34 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+const REQUEST_TIMEOUT_MS = 45_000;
+
 async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...options,
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getAuthToken()}`,
         ...options.headers,
       },
     });
-  } catch {
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error(
+        `API at ${API_URL} timed out after ${REQUEST_TIMEOUT_MS / 1000}s (Railway may be waking up). Try again.`
+      );
+    }
     throw new Error(
-      `Cannot reach API at ${API_URL}. Check VITE_API_URL on Vercel and that the Railway backend is running.`
+      `Cannot reach API at ${API_URL}. Check VITE_API_URL on Vercel, Railway backend health, and CORS_ORIGINS.`
     );
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 
   if (response.status === 204) {
@@ -84,23 +97,42 @@ async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<
 }
 
 /** Retry transient network failures (e.g. Railway cold start). */
-async function request<T>(path: string, options: RequestInit = {}, retries = 2): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}, retries = 4): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await requestOnce<T>(path, options);
     } catch (err) {
       lastError = err;
+      const message = err instanceof Error ? err.message : "";
       const retryable =
-        err instanceof Error && err.message.includes("Cannot reach API");
+        message.includes("Cannot reach API") ||
+        message.includes("timed out") ||
+        message.includes("Failed to fetch");
       if (retryable && attempt < retries) {
-        await sleep(600 * (attempt + 1));
+        await sleep(800 * (attempt + 1));
         continue;
       }
       throw err;
     }
   }
   throw lastError;
+}
+
+/** Wake Railway / confirm API is reachable before mutating requests. */
+export async function warmupApi(): Promise<boolean> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 15_000);
+      const response = await fetch(`${API_URL}/health`, { signal: controller.signal });
+      window.clearTimeout(timeoutId);
+      if (response.ok) return true;
+    } catch {
+      await sleep(1000 * (attempt + 1));
+    }
+  }
+  return false;
 }
 
 export const api = {

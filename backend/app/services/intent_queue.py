@@ -2,10 +2,23 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 
 from app.config import Settings, get_settings
 from app.db.session import SessionLocal
+
+logger = logging.getLogger(__name__)
+
+
+def _process_intent_sync(item_id: uuid.UUID, user_id: uuid.UUID, trigger: str, settings: Settings) -> None:
+    from app.pipeline.path_a import PathAProcessor
+
+    db = SessionLocal()
+    try:
+        PathAProcessor(db, settings).process(item_id, user_id, trigger=trigger)
+    finally:
+        db.close()
 
 
 def enqueue_intent_processing(
@@ -16,18 +29,17 @@ def enqueue_intent_processing(
 ) -> None:
     settings = settings or get_settings()
     if settings.intent_worker_sync:
-        from app.pipeline.path_a import PathAProcessor
-
-        db = SessionLocal()
-        try:
-            PathAProcessor(db, settings).process(item_id, user_id, trigger=trigger)
-        finally:
-            db.close()
+        _process_intent_sync(item_id, user_id, trigger, settings)
         return
 
-    from app.worker import process_intent_task
+    try:
+        from app.worker import process_intent_task
 
-    process_intent_task.delay(str(item_id), str(user_id), trigger)
+        process_intent_task.delay(str(item_id), str(user_id), trigger)
+    except Exception as exc:
+        # Redis/Celery unavailable — fall back inline so API stays responsive.
+        logger.warning("Celery enqueue failed (%s); running Path A synchronously", exc)
+        _process_intent_sync(item_id, user_id, trigger, settings)
 
 
 def enqueue_rematch_for_user(user_id: uuid.UUID, settings: Settings | None = None) -> int:
