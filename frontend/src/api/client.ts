@@ -40,10 +40,15 @@ function sleep(ms: number): Promise<void> {
 }
 
 const REQUEST_TIMEOUT_MS = 45_000;
+const CHECKOUT_REQUEST_TIMEOUT_MS = 90_000;
 
-async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function requestOnce<T>(
+  path: string,
+  options: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<T> {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
   let response: Response;
   try {
@@ -59,7 +64,7 @@ async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new Error(
-        `API at ${API_URL} timed out after ${REQUEST_TIMEOUT_MS / 1000}s (Railway may be waking up). Try again.`
+        `API at ${API_URL} timed out after ${timeoutMs / 1000}s (Railway may be waking up). Try again.`
       );
     }
     throw new Error(
@@ -97,11 +102,16 @@ async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<
 }
 
 /** Retry transient network failures (e.g. Railway cold start). */
-async function request<T>(path: string, options: RequestInit = {}, retries = 4): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  retries = 4,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      return await requestOnce<T>(path, options);
+      return await requestOnce<T>(path, options, timeoutMs);
     } catch (err) {
       lastError = err;
       const message = err instanceof Error ? err.message : "";
@@ -174,7 +184,12 @@ export const api = {
     const params = new URLSearchParams();
     if (cartSkus) params.set("cart_skus", cartSkus);
     const q = params.toString();
-    return request<CheckoutRecommendationsResponse>(`/v1/recommendations/checkout${q ? `?${q}` : ""}`);
+    return request<CheckoutRecommendationsResponse>(
+      `/v1/recommendations/checkout${q ? `?${q}` : ""}`,
+      {},
+      2,
+      CHECKOUT_REQUEST_TIMEOUT_MS,
+    );
   },
   recommendationAction: (recId: string, action: RecommendationActionType, checkoutSessionId: string) =>
     request<RecommendationActionResponse>(`/v1/recommendations/${recId}/actions`, {

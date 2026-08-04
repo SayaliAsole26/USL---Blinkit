@@ -8,7 +8,7 @@ import uuid
 from typing import Any
 
 from app.config import Settings
-from app.services.redis_client import get_redis_client
+from app.services.redis_client import get_redis_client, is_redis_available
 
 
 def checkout_cache_key(
@@ -22,7 +22,7 @@ def checkout_cache_key(
 
 
 def read_checkout_cache(settings: Settings, key: str) -> dict[str, Any] | None:
-    if settings.checkout_cache_ttl_seconds <= 0:
+    if settings.checkout_cache_ttl_seconds <= 0 or not is_redis_available(settings):
         return None
     try:
         client = get_redis_client(settings)
@@ -35,7 +35,7 @@ def read_checkout_cache(settings: Settings, key: str) -> dict[str, Any] | None:
 
 
 def write_checkout_cache(settings: Settings, key: str, payload: dict[str, Any]) -> None:
-    if settings.checkout_cache_ttl_seconds <= 0:
+    if settings.checkout_cache_ttl_seconds <= 0 or not is_redis_available(settings):
         return
     try:
         client = get_redis_client(settings)

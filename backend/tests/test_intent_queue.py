@@ -21,14 +21,14 @@ def async_settings():
 
 
 def test_skips_celery_when_redis_unavailable(async_settings):
-    with patch("app.services.intent_queue.check_redis_connection", return_value=False):
+    with patch("app.services.intent_queue.is_redis_available", return_value=False):
         with patch("app.services.intent_queue._process_intent_sync") as sync_mock:
             _dispatch_intent_processing(TEST_ITEM_ID, TEST_USER_ID, "created", async_settings)
             sync_mock.assert_called_once_with(TEST_ITEM_ID, TEST_USER_ID, "created", async_settings)
 
 
 def test_falls_back_to_sync_when_celery_unavailable(async_settings):
-    with patch("app.services.intent_queue.check_redis_connection", return_value=True):
+    with patch("app.services.intent_queue.is_redis_available", return_value=True):
         with patch("app.worker.process_intent_task.delay", side_effect=ConnectionError("redis down")):
             with patch("app.services.intent_queue._process_intent_sync") as sync_mock:
                 _dispatch_intent_processing(TEST_ITEM_ID, TEST_USER_ID, "created", async_settings)

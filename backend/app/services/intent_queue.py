@@ -8,7 +8,7 @@ import uuid
 
 from app.config import Settings, get_settings
 from app.db.session import SessionLocal
-from app.services.redis_client import check_redis_connection
+from app.services.redis_client import is_redis_available
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def _dispatch_intent_processing(
     settings: Settings,
 ) -> None:
     """Run Path A via Celery when Redis is healthy, otherwise inline in this thread."""
-    if settings.intent_worker_sync or not check_redis_connection(settings):
+    if settings.intent_worker_sync or not is_redis_available(settings):
         if not settings.intent_worker_sync:
             logger.warning("Redis unavailable; running Path A in background thread")
         _process_intent_sync(item_id, user_id, trigger, settings)

@@ -7,7 +7,7 @@ from typing import Any
 from groq import Groq
 
 from app.config import Settings
-from app.services.redis_client import get_redis_client
+from app.services.redis_client import get_redis_client, is_redis_available
 
 
 class GroqLLMService:
@@ -15,7 +15,7 @@ class GroqLLMService:
         self.settings = settings
         self._client: Groq | None = None
         if settings.groq_api_key:
-            self._client = Groq(api_key=settings.groq_api_key)
+            self._client = Groq(api_key=settings.groq_api_key, timeout=12.0)
 
     @property
     def is_configured(self) -> bool:
@@ -82,7 +82,7 @@ class GroqLLMService:
         return f"llm:explain:{reason_type}:{digest}"
 
     def _read_explanation_cache(self, reason_type: str, signals: dict[str, Any]) -> str | None:
-        if self.settings.explanation_cache_ttl_seconds <= 0:
+        if self.settings.explanation_cache_ttl_seconds <= 0 or not is_redis_available(self.settings):
             return None
         try:
             client = get_redis_client(self.settings)
@@ -92,7 +92,7 @@ class GroqLLMService:
             return None
 
     def _write_explanation_cache(self, reason_type: str, signals: dict[str, Any], text: str) -> None:
-        if self.settings.explanation_cache_ttl_seconds <= 0 or not text:
+        if self.settings.explanation_cache_ttl_seconds <= 0 or not text or not is_redis_available(self.settings):
             return
         try:
             client = get_redis_client(self.settings)

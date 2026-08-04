@@ -11,7 +11,7 @@ from typing import Any
 from app.config import Settings, get_settings
 from app.context.season_provider import SeasonProvider
 from app.context.weather_provider import WeatherProvider
-from app.services.redis_client import get_redis_client
+from app.services.redis_client import get_redis_client, is_redis_available
 
 
 @dataclass
@@ -67,7 +67,7 @@ class ContextService:
             festival=self.season.get_active_festival(now),
         )
 
-        if self.settings.context_cache_ttl_seconds > 0:
+        if self.settings.context_cache_ttl_seconds > 0 and is_redis_available(self.settings):
             self._write_cache(cache_key, bundle)
         return bundle
 
@@ -99,6 +99,8 @@ class ContextService:
         return events
 
     def _read_cache(self, key: str) -> dict[str, Any] | None:
+        if not is_redis_available(self.settings):
+            return None
         try:
             client = get_redis_client(self.settings)
             raw = client.get(key)

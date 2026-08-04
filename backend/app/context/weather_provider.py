@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 
 from app.config import Settings, get_settings
-from app.services.redis_client import get_redis_client
+from app.services.redis_client import get_redis_client, is_redis_available
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +117,8 @@ class WeatherProvider:
         }
 
     def _read_cache(self, key: str) -> dict[str, Any] | None:
+        if not is_redis_available(self.settings):
+            return None
         try:
             client = get_redis_client(self.settings)
             raw = client.get(key)
@@ -127,6 +129,8 @@ class WeatherProvider:
         return None
 
     def _write_cache(self, key: str, payload: dict[str, Any]) -> None:
+        if not is_redis_available(self.settings):
+            return
         try:
             client = get_redis_client(self.settings)
             client.setex(key, self.settings.weather_cache_ttl_seconds, json.dumps(payload))
