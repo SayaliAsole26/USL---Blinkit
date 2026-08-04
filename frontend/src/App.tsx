@@ -39,12 +39,6 @@ export default function App() {
   const [locationReturnState, setLocationReturnState] = useState<AppState>("shop");
   const [changingLocation, setChangingLocation] = useState(false);
 
-  const refreshLocation = useCallback(async () => {
-    const loc = await api.getLocation();
-    setLocation(loc);
-    return loc;
-  }, []);
-
   const loadUslMeta = useCallback(async () => {
     try {
       const data = await api.listItems("all");
@@ -79,13 +73,11 @@ export default function App() {
     setState("onboarding");
   }
 
-  function handleOnboardingComplete() {
-    refreshLocation()
-      .then(() => loadUslMeta())
-      .then(() => setState(changingLocation ? locationReturnState : "home"))
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load location"));
-    api.getFlags().then((flags) => setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false)).catch(() => {});
+  function handleOnboardingComplete(saved: LocationResponse) {
+    setLocation(saved);
     setChangingLocation(false);
+    loadUslMeta().then(() => setState(changingLocation ? locationReturnState : "home"));
+    api.getFlags().then((flags) => setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false)).catch(() => {});
   }
 
   function handleChangeLocation(from: AppState = "shop") {
@@ -157,6 +149,7 @@ export default function App() {
           onComplete={handleOnboardingComplete}
           onBack={changingLocation ? () => setState(locationReturnState) : () => setState("welcome")}
           changingLocation={changingLocation}
+          currentLocation={location}
         />
       )}
 

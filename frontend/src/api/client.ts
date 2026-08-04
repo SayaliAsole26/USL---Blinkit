@@ -22,7 +22,11 @@ export function setAuthToken(token: string): void {
   localStorage.setItem(AUTH_TOKEN_KEY, token);
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function requestOnce<T>(path: string, options: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
@@ -64,6 +68,26 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   return data as T;
+}
+
+/** Retry transient network failures (e.g. Railway cold start). */
+async function request<T>(path: string, options: RequestInit = {}, retries = 2): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await requestOnce<T>(path, options);
+    } catch (err) {
+      lastError = err;
+      const retryable =
+        err instanceof Error && err.message.includes("Cannot reach API");
+      if (retryable && attempt < retries) {
+        await sleep(600 * (attempt + 1));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
 }
 
 export const api = {

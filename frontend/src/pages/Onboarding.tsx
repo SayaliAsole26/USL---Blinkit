@@ -1,35 +1,44 @@
-import { useState } from "react";
-import { api, getApiBaseUrl } from "../api/client";
+import { useMemo, useState } from "react";
+import { api, getApiBaseUrl, LocationResponse } from "../api/client";
 import Icon from "../components/layout/Icon";
 import { DELIVERY_LOCATIONS, DeliveryLocation } from "../data/deliveryLocations";
 
 type Props = {
-  onComplete: () => void;
+  onComplete: (location: LocationResponse) => void;
   onBack?: () => void;
   changingLocation?: boolean;
+  currentLocation?: LocationResponse | null;
 };
 
-export default function Onboarding({ onComplete, onBack, changingLocation }: Props) {
-  const [selected, setSelected] = useState<DeliveryLocation | null>(null);
+export default function Onboarding({ onComplete, onBack, changingLocation, currentLocation }: Props) {
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleContinue() {
-    if (!selected) return;
+  const currentId = useMemo(
+    () => DELIVERY_LOCATIONS.find((l) => l.pincode === currentLocation?.pincode)?.id ?? null,
+    [currentLocation?.pincode]
+  );
+
+  async function selectLocation(location: DeliveryLocation) {
+    if (savingId) return;
+
+    if (changingLocation && currentLocation?.pincode === location.pincode) {
+      onComplete(currentLocation);
+      return;
+    }
 
     setError("");
-    setLoading(true);
+    setSavingId(location.id);
     try {
-      await api.setLocation({
-        city: selected.city,
-        state: selected.state,
-        pincode: selected.pincode,
+      const saved = await api.setLocation({
+        city: location.city,
+        state: location.state,
+        pincode: location.pincode,
       });
-      onComplete();
+      onComplete(saved);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save location");
-    } finally {
-      setLoading(false);
+      setSavingId(null);
     }
   }
 
@@ -46,7 +55,7 @@ export default function Onboarding({ onComplete, onBack, changingLocation }: Pro
             {changingLocation ? "Change delivery location" : "Choose delivery location"}
           </h1>
           <p className="text-xs text-on-surface-variant">
-            {changingLocation ? "Pick a new pincode from the demo dataset" : "Select a city with catalog coverage"}
+            Tap a city to {changingLocation ? "update" : "set"} your delivery pincode
           </p>
         </div>
       </header>
@@ -58,16 +67,22 @@ export default function Onboarding({ onComplete, onBack, changingLocation }: Pro
 
         <ul className="space-y-3">
           {DELIVERY_LOCATIONS.map((location) => {
-            const isSelected = selected?.id === location.id;
+            const isCurrent = currentId === location.id;
+            const isSaving = savingId === location.id;
+            const isDisabled = savingId !== null && !isSaving;
+
             return (
               <li key={location.id}>
                 <button
                   type="button"
-                  onClick={() => setSelected(location)}
-                  className={`flex w-full items-center justify-between rounded-xl border px-4 py-4 text-left transition-all active:scale-[0.99] ${
-                    isSelected
-                      ? "border-primary bg-primary-container/20 ring-2 ring-primary/30"
-                      : "border-border-subtle bg-surface-container-low hover:border-primary/40"
+                  disabled={isDisabled}
+                  onClick={() => selectLocation(location)}
+                  className={`flex w-full items-center justify-between rounded-xl border px-4 py-4 text-left transition-all active:scale-[0.99] disabled:opacity-50 ${
+                    isSaving
+                      ? "border-primary bg-primary-container/30 ring-2 ring-primary/40"
+                      : isCurrent
+                        ? "border-primary/60 bg-primary-container/10"
+                        : "border-border-subtle bg-surface-container-low hover:border-primary/40"
                   }`}
                 >
                   <div>
@@ -77,7 +92,17 @@ export default function Onboarding({ onComplete, onBack, changingLocation }: Pro
                     </p>
                     <p className="mt-0.5 text-xs text-on-surface-variant">{location.label}</p>
                   </div>
-                  {isSelected && <Icon name="check_circle" className="text-primary" />}
+                  <div className="flex flex-col items-end gap-1">
+                    {isSaving && (
+                      <span className="text-xs font-medium text-primary">Saving…</span>
+                    )}
+                    {!isSaving && isCurrent && (
+                      <Icon name="check_circle" className="text-primary" />
+                    )}
+                    {!isSaving && !isCurrent && (
+                      <Icon name="chevron_right" className="text-on-surface-variant" />
+                    )}
+                  </div>
                 </button>
               </li>
             );
@@ -90,15 +115,6 @@ export default function Onboarding({ onComplete, onBack, changingLocation }: Pro
             <p className="text-xs text-on-surface-variant">API: {getApiBaseUrl()}</p>
           </div>
         )}
-
-        <button
-          type="button"
-          onClick={handleContinue}
-          disabled={loading || !selected}
-          className="h-12 w-full rounded-xl bg-primary-container text-base font-semibold text-on-primary transition-all active:scale-[0.96] disabled:opacity-60"
-        >
-          {loading ? "Saving…" : selected ? `Continue · ${selected.city} ${selected.pincode}` : "Select a location"}
-        </button>
       </div>
     </div>
   );
