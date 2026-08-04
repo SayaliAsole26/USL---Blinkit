@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import uuid
 from datetime import datetime, timezone
 
@@ -16,6 +17,14 @@ from app.integrations.mock_blinkit import get_cart_adapter
 from app.pipeline.path_b import PathBProcessor
 from app.schemas.recommendations import RecommendationAction
 from app.services.checkout_cache import checkout_cache_key, read_checkout_cache, write_checkout_cache
+
+logger = logging.getLogger(__name__)
+
+_EMPTY_CHECKOUT = {
+    "recommendations": [],
+    "shortlist_size": 0,
+    "latency_ms": 0,
+}
 
 
 class RecommendationService:
@@ -48,26 +57,35 @@ class RecommendationService:
             cached["checkout_session_id"] = checkout_session_id
             return cached
 
-        result = PathBProcessor(self.db, self.settings).process(
-            user_id,
-            checkout_session_id,
-            cart_sku_ids=cart_sku_ids,
-        )
-
-        for rec in result["recommendations"]:
-            self._log_event(
-                user_id=user_id,
-                checkout_session_id=checkout_session_id,
-                recommendation_id=rec["recommendation_id"],
-                item_id=uuid.UUID(rec["usl_item_id"]) if rec.get("usl_item_id") else None,
-                sku_id=rec["sku_id"],
-                reason_type=rec["reason_type"],
-                reason_text=rec["reason_text"],
-                action="shown",
+        try:
+            result = PathBProcessor(self.db, self.settings).process(
+                user_id,
+                checkout_session_id,
+                cart_sku_ids=cart_sku_ids,
             )
+        except Exception as exc:
+            logger.exception("Checkout Path B failed for user %s: %s", user_id, exc)
+            return {"checkout_session_id": checkout_session_id, **_EMPTY_CHECKOUT}
 
-        self.db.commit()
-        write_checkout_cache(self.settings, cache_key, result)
+        try:
+            for rec in result["recommendations"]:
+                self._log_event(
+                    user_id=user_id,
+                    checkout_session_id=checkout_session_id,
+                    recommendation_id=rec["recommendation_id"],
+                    item_id=uuid.UUID(rec["usl_item_id"]) if rec.get("usl_item_id") else None,
+                    sku_id=rec["sku_id"],
+                    reason_type=rec["reason_type"],
+                    reason_text=rec["reason_text"],
+                    action="shown",
+                )
+
+            self.db.commit()
+            write_checkout_cache(self.settings, cache_key, result)
+        except Exception as exc:
+            logger.exception("Failed to persist checkout recommendations for user %s: %s", user_id, exc)
+            self.db.rollback()
+
         return result
 
     def _get_pincode(self, user_id: uuid.UUID) -> str:

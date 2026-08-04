@@ -32,6 +32,9 @@ class WeatherProvider:
         self.settings = settings or get_settings()
 
     def get_forecast(self, pincode: str, when: date | None = None) -> dict[str, Any]:
+        if not is_redis_available(self.settings):
+            return self._neutral_forecast()
+
         day = when or datetime.now(timezone.utc).date()
         cache_key = f"context:weather:{pincode}:{day.isoformat()}"
 

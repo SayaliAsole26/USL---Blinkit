@@ -30,6 +30,13 @@ app.include_router(health_router)
 app.include_router(api_router)
 
 
+@app.on_event("startup")
+def warm_dependencies() -> None:
+    from app.services.redis_client import is_redis_available
+
+    is_redis_available(settings)
+
+
 @app.get("/")
 def root():
     return {

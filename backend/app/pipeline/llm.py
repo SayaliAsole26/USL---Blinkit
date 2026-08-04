@@ -15,7 +15,10 @@ class GroqLLMService:
         self.settings = settings
         self._client: Groq | None = None
         if settings.groq_api_key:
-            self._client = Groq(api_key=settings.groq_api_key, timeout=12.0)
+            try:
+                self._client = Groq(api_key=settings.groq_api_key, timeout=12.0)
+            except TypeError:
+                self._client = Groq(api_key=settings.groq_api_key)
 
     @property
     def is_configured(self) -> bool:
@@ -46,6 +49,10 @@ class GroqLLMService:
             return self._fallback_intent(raw_intent)
 
     def generate_reason_text(self, reason_type: str, signals: dict[str, Any]) -> str:
+        # Degraded prod (no Redis): template-only keeps checkout under Railway proxy limits.
+        if not is_redis_available(self.settings):
+            return self._template_reason(reason_type, signals)
+
         cached = self._read_explanation_cache(reason_type, signals)
         if cached:
             return cached

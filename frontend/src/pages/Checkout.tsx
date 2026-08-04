@@ -151,7 +151,16 @@ export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props)
         {loading && <p className="text-sm text-on-surface-variant">Loading recommendations…</p>}
         {error && <p className="text-sm text-error">{error}</p>}
         {recError && !loading && (
-          <p className="rounded-xl bg-error-container/30 p-3 text-sm text-error">{recError}</p>
+          <div className="space-y-2 rounded-xl bg-error-container/30 p-3">
+            <p className="text-sm text-error">{recError}</p>
+            <button
+              type="button"
+              onClick={loadCheckout}
+              className="text-sm font-semibold text-primary"
+            >
+              Retry recommendations
+            </button>
+          </div>
         )}
         {!loading && !recError && recommendations.length === 0 && (
           <p className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">
