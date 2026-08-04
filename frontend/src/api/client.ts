@@ -1,5 +1,18 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+/** Strip trailing slashes and accidental `/v1` suffix (common Vercel misconfig). */
+export function normalizeApiBaseUrl(raw: string): string {
+  let url = raw.trim().replace(/\/+$/, "");
+  if (url.endsWith("/v1")) {
+    url = url.slice(0, -3);
+  }
+  return url;
+}
+
+const API_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL || "http://localhost:8000");
 const AUTH_TOKEN_KEY = "usl_auth_token";
+
+export function getApiBaseUrl(): string {
+  return API_URL;
+}
 
 export function getAuthToken(): string {
   return localStorage.getItem(AUTH_TOKEN_KEY) || "dev";
@@ -27,12 +40,19 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!response.ok) {
     const detail = data.detail;
-    const message =
+    let message =
       typeof detail === "string"
         ? detail
         : Array.isArray(detail)
           ? detail.map((d: { msg?: string }) => d.msg || "").filter(Boolean).join(", ")
           : data.message || `Request failed (${response.status})`;
+
+    if (response.status === 404 && message === "Not Found") {
+      message =
+        `API route not found at ${API_URL}${path}. ` +
+        "Check VITE_API_URL on Vercel (Railway URL only, no /v1 suffix) and redeploy.";
+    }
+
     throw new Error(message);
   }
 

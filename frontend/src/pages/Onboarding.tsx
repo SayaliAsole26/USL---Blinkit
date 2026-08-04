@@ -1,6 +1,7 @@
-import { FormEvent, useState } from "react";
-import { api } from "../api/client";
+import { useState } from "react";
+import { api, getApiBaseUrl } from "../api/client";
 import Icon from "../components/layout/Icon";
+import { DELIVERY_LOCATIONS, DeliveryLocation } from "../data/deliveryLocations";
 
 type Props = {
   onComplete: () => void;
@@ -8,18 +9,21 @@ type Props = {
 };
 
 export default function Onboarding({ onComplete, onBack }: Props) {
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [pincode, setPincode] = useState("");
+  const [selected, setSelected] = useState<DeliveryLocation | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function handleContinue() {
+    if (!selected) return;
+
     setError("");
     setLoading(true);
     try {
-      await api.setLocation({ city, state, pincode });
+      await api.setLocation({
+        city: selected.city,
+        state: selected.state,
+        pincode: selected.pincode,
+      });
       onComplete();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save location");
@@ -29,7 +33,7 @@ export default function Onboarding({ onComplete, onBack }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-surface-gray">
+    <div className="min-h-screen bg-surface-gray pb-8">
       <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-surface px-4">
         {onBack && (
           <button type="button" onClick={onBack} className="active-scale flex h-10 w-10 items-center justify-center rounded-full">
@@ -37,53 +41,65 @@ export default function Onboarding({ onComplete, onBack }: Props) {
           </button>
         )}
         <div>
-          <h1 className="text-lg font-bold text-primary">Set delivery location</h1>
-          <p className="text-xs text-on-surface-variant">We use this to check product availability</p>
+          <h1 className="text-lg font-bold text-primary">Choose delivery location</h1>
+          <p className="text-xs text-on-surface-variant">Select a city with catalog coverage</p>
         </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="mx-4 mt-6 space-y-4 rounded-2xl bg-surface p-5 card-shadow">
-        <label className="block text-sm font-semibold">
-          City
-          <input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Bangalore"
-            required
-            className="mt-1 w-full rounded-xl border border-border-subtle px-3 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </label>
-        <label className="block text-sm font-semibold">
-          State
-          <input
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            placeholder="Karnataka"
-            required
-            className="mt-1 w-full rounded-xl border border-border-subtle px-3 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </label>
-        <label className="block text-sm font-semibold">
-          Pincode
-          <input
-            value={pincode}
-            onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="560001"
-            inputMode="numeric"
-            pattern="\d{6}"
-            required
-            className="mt-1 w-full rounded-xl border border-border-subtle px-3 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </label>
-        {error && <p className="text-sm text-error">{error}</p>}
+      <div className="mx-4 mt-6 space-y-4 rounded-2xl bg-surface p-5 card-shadow">
+        <p className="text-sm text-on-surface-variant">
+          Only locations in our demo dataset are available. Product availability varies by pincode.
+        </p>
+
+        <ul className="space-y-3">
+          {DELIVERY_LOCATIONS.map((location) => {
+            const isSelected = selected?.id === location.id;
+            return (
+              <li key={location.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(location)}
+                  className={`flex w-full items-center justify-between rounded-xl border px-4 py-4 text-left transition-all active:scale-[0.99] ${
+                    isSelected
+                      ? "border-primary bg-primary-container/20 ring-2 ring-primary/30"
+                      : "border-border-subtle bg-surface-container-low hover:border-primary/40"
+                  }`}
+                >
+                  <div>
+                    <p className="font-semibold text-on-surface">{location.city}</p>
+                    <p className="text-sm text-on-surface-variant">
+                      {location.state} · {location.pincode}
+                    </p>
+                    <p className="mt-0.5 text-xs text-on-surface-variant">{location.label}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="rounded-full bg-surface-container-high px-2.5 py-1 text-xs font-medium text-on-surface-variant">
+                      {location.productCount} products
+                    </span>
+                    {isSelected && <Icon name="check_circle" className="text-primary" />}
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+
+        {error && (
+          <div className="space-y-1 text-sm text-error">
+            <p>{error}</p>
+            <p className="text-xs text-on-surface-variant">API: {getApiBaseUrl()}</p>
+          </div>
+        )}
+
         <button
-          type="submit"
-          disabled={loading}
+          type="button"
+          onClick={handleContinue}
+          disabled={loading || !selected}
           className="h-12 w-full rounded-xl bg-primary-container text-base font-semibold text-on-primary transition-all active:scale-[0.96] disabled:opacity-60"
         >
-          {loading ? "Saving…" : "Continue to my list"}
+          {loading ? "Saving…" : selected ? `Continue · ${selected.city} ${selected.pincode}` : "Select a location"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
