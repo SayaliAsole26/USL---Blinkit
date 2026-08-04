@@ -1,0 +1,1 @@
+"""USL Blinkit backend application."""

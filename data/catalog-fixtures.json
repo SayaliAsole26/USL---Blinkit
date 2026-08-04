@@ -1,0 +1,114 @@
+[
+  {
+    "sku_id": "sku_face_wash_001",
+    "product_name": "Cetaphil Gentle Face Wash 125ml",
+    "category": "Personal Care",
+    "price": 499,
+    "image_url": "https://placehold.co/200x200?text=Face+Wash",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_moisturizer_001",
+    "product_name": "Nivea Soft Light Moisturizer 300ml",
+    "category": "Personal Care",
+    "price": 299,
+    "image_url": "https://placehold.co/200x200?text=Moisturizer",
+    "pincodes": ["560001", "560034", "110001"]
+  },
+  {
+    "sku_id": "sku_earbuds_001",
+    "product_name": "boAt Airdopes 131 Bluetooth Earbuds",
+    "category": "Electronics",
+    "price": 999,
+    "image_url": "https://placehold.co/200x200?text=Earbuds",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_dog_food_001",
+    "product_name": "Pedigree Adult Dog Food 1.2kg",
+    "category": "Pet Supplies",
+    "price": 449,
+    "image_url": "https://placehold.co/200x200?text=Dog+Food",
+    "pincodes": ["560001", "110001"]
+  },
+  {
+    "sku_id": "sku_bedsheet_001",
+    "product_name": "Cotton Double Bedsheet Set",
+    "category": "Home Essentials",
+    "price": 799,
+    "image_url": "https://placehold.co/200x200?text=Bedsheet",
+    "pincodes": ["560001", "560034", "400001"]
+  },
+  {
+    "sku_id": "sku_hair_dryer_001",
+    "product_name": "Philips Hair Dryer 1200W",
+    "category": "Personal Care",
+    "price": 1299,
+    "image_url": "https://placehold.co/200x200?text=Hair+Dryer",
+    "pincodes": ["560001", "110001"]
+  },
+  {
+    "sku_id": "sku_protein_001",
+    "product_name": "MuscleBlaze Whey Protein 1kg",
+    "category": "Health & Nutrition",
+    "price": 2499,
+    "image_url": "https://placehold.co/200x200?text=Protein",
+    "pincodes": ["560001", "560034"]
+  },
+  {
+    "sku_id": "sku_gift_001",
+    "product_name": "Premium Birthday Gift Hamper",
+    "category": "Gifting",
+    "price": 1499,
+    "image_url": "https://placehold.co/200x200?text=Gift",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_coffee_001",
+    "product_name": "Nescafe Classic Coffee Machine",
+    "category": "Home Essentials",
+    "price": 3499,
+    "image_url": "https://placehold.co/200x200?text=Coffee",
+    "pincodes": ["560001"]
+  },
+  {
+    "sku_id": "sku_extension_001",
+    "product_name": "Anchor 6-Socket Extension Board",
+    "category": "Electronics",
+    "price": 599,
+    "image_url": "https://placehold.co/200x200?text=Extension",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_printer_ink_001",
+    "product_name": "HP 680 Black Ink Cartridge",
+    "category": "Electronics",
+    "price": 899,
+    "image_url": "https://placehold.co/200x200?text=Ink",
+    "pincodes": ["560001", "110001"]
+  },
+  {
+    "sku_id": "sku_milk_001",
+    "product_name": "Amul Taaza Toned Milk 1L",
+    "category": "Groceries",
+    "price": 56,
+    "image_url": "https://placehold.co/200x200?text=Milk",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_umbrella_001",
+    "product_name": "Compact Rain Umbrella",
+    "category": "Home Essentials",
+    "price": 349,
+    "image_url": "https://placehold.co/200x200?text=Umbrella",
+    "pincodes": ["560001", "560034", "110001", "400001"]
+  },
+  {
+    "sku_id": "sku_sunscreen_001",
+    "product_name": "Lotus SPF 50 Sunscreen 100g",
+    "category": "Personal Care",
+    "price": 425,
+    "image_url": "https://placehold.co/200x200?text=Sunscreen",
+    "pincodes": ["560001", "560034", "110001"]
+  }
+]

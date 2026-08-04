@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: USL Blinkit API
+  version: 0.2.0
+  description: Universal Shopping List — Phase 1 (location + USL CRUD)
+servers:
+  - url: http://localhost:8000
+    description: Local
+  - url: https://your-api.up.railway.app
+    description: Railway
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LocationCreate:
+      type: object
+      required: [city, state, pincode]
+      properties:
+        city:
+          type: string
+          maxLength: 128
+        state:
+          type: string
+          maxLength: 128
+        pincode:
+          type: string
+          pattern: "^\\d{6}$"
+    LocationResponse:
+      allOf:
+        - $ref: "#/components/schemas/LocationCreate"
+        - type: object
+          properties:
+            updated_at:
+              type: string
+              format: date-time
+    UslItemCreate:
+      type: object
+      required: [raw_intent]
+      properties:
+        raw_intent:
+          type: string
+          maxLength: 500
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+    UslItemUpdate:
+      type: object
+      properties:
+        raw_intent:
+          type: string
+          maxLength: 500
+        status:
+          type: string
+          enum: [pending, saved_for_later, dismissed, purchased]
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+    UslItemResponse:
+      type: object
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        raw_intent:
+          type: string
+        status:
+          type: string
+          enum: [pending, saved_for_later, dismissed, purchased]
+        priority:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        purchased_at:
+          type: string
+          format: date-time
+          nullable: true
+    UslItemListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UslItemResponse"
+        total:
+          type: integer
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: OK
+  /ready:
+    get:
+      summary: Readiness check
+      security: []
+      responses:
+        "200":
+          description: Service readiness with dependency checks
+  /v1/flags:
+    get:
+      summary: Feature flags
+      security: []
+      responses:
+        "200":
+          description: USL feature flags
+  /v1/users/location:
+    get:
+      summary: Get user location
+      tags: [Location]
+      responses:
+        "200":
+          description: User location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationResponse"
+        "404":
+          description: Location not set
+    post:
+      summary: Set user location
+      tags: [Location]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationCreate"
+      responses:
+        "201":
+          description: Location saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationResponse"
+  /v1/usl/items:
+    get:
+      summary: List USL items
+      tags: [USL]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, saved_for_later, dismissed, purchased, all]
+      responses:
+        "200":
+          description: USL item list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UslItemListResponse"
+    post:
+      summary: Add USL item
+      tags: [USL]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UslItemCreate"
+      responses:
+        "201":
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UslItemResponse"
+  /v1/usl/items/{item_id}:
+    patch:
+      summary: Update USL item
+      tags: [USL]
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UslItemUpdate"
+      responses:
+        "200":
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UslItemResponse"
+        "404":
+          description: Item not found
+    delete:
+      summary: Delete USL item
+      tags: [USL]
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Item deleted
+        "404":
+          description: Item not found
+  /v1/recommendations/checkout:
+    get:
+      summary: Checkout recommendations (Path B — Phase 3)
+      tags: [Recommendations]
+      responses:
+        "200":
+          description: Top 3-5 explainable recommendations
+  /v1/integrations/catalog/search:
+    get:
+      summary: Mock catalog search
+      tags: [Integrations]
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Catalog search results
