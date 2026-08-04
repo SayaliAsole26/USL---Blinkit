@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { AdminDebug } from "./pages/AdminDebug";
+import AccountPage from "./pages/AccountPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import CheckoutPage from "./pages/Checkout";
 import Onboarding from "./pages/Onboarding";
 import OrderSuccess from "./pages/OrderSuccess";
+import OrdersPage from "./pages/OrdersPage";
 import ShopHome from "./pages/ShopHome";
 import UslHome from "./pages/UslHome";
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
@@ -17,6 +20,9 @@ type AppState =
   | "shop"
   | "checkout"
   | "orderSuccess"
+  | "categories"
+  | "orders"
+  | "account"
   | "admin";
 
 const ADMIN_DEBUG = import.meta.env.VITE_ADMIN_DEBUG === "true";
@@ -29,6 +35,15 @@ export default function App() {
   const [uslItems, setUslItems] = useState<UslItemResponse[]>([]);
   const [orderMessage, setOrderMessage] = useState("");
   const [error, setError] = useState("");
+  const [shopCategory, setShopCategory] = useState("all");
+  const [locationReturnState, setLocationReturnState] = useState<AppState>("shop");
+  const [changingLocation, setChangingLocation] = useState(false);
+
+  const refreshLocation = useCallback(async () => {
+    const loc = await api.getLocation();
+    setLocation(loc);
+    return loc;
+  }, []);
 
   const loadUslMeta = useCallback(async () => {
     try {
@@ -60,27 +75,59 @@ export default function App() {
 
   function handleWelcomeContinue() {
     localStorage.setItem(WELCOME_KEY, "1");
+    setChangingLocation(false);
     setState("onboarding");
   }
 
   function handleOnboardingComplete() {
-    api
-      .getLocation()
-      .then((loc) => {
-        setLocation(loc);
-        return loadUslMeta().then(() => loc);
-      })
-      .then(() => setState("home"))
+    refreshLocation()
+      .then(() => loadUslMeta())
+      .then(() => setState(changingLocation ? locationReturnState : "home"))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load location"));
     api.getFlags().then((flags) => setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false)).catch(() => {});
+    setChangingLocation(false);
+  }
+
+  function handleChangeLocation(from: AppState = "shop") {
+    setLocationReturnState(from);
+    setChangingLocation(true);
+    setState("onboarding");
   }
 
   function navigateTab(tab: NavTab) {
-    setState(tab === "shop" ? "shop" : "home");
+    if (tab === "shop") setState("shop");
+    else if (tab === "list") setState("home");
+    else if (tab === "categories") setState("categories");
+    else if (tab === "orders") setState("orders");
+    else if (tab === "account") setState("account");
   }
 
-  const showBottomNav = state === "home" || state === "shop";
-  const availableCount = uslItems.filter((i) => i.catalog_matches.some((m) => m.availability_status !== "unavailable")).length;
+  function handleSelectCategory(category: string) {
+    setShopCategory(category);
+    setState("shop");
+  }
+
+  const showBottomNav =
+    state === "home" ||
+    state === "shop" ||
+    state === "categories" ||
+    state === "orders" ||
+    state === "account";
+
+  const navActive: NavTab =
+    state === "home"
+      ? "list"
+      : state === "categories"
+        ? "categories"
+        : state === "orders"
+          ? "orders"
+          : state === "account"
+            ? "account"
+            : "shop";
+
+  const availableCount = uslItems.filter((i) =>
+    i.catalog_matches.some((m) => m.availability_status !== "unavailable")
+  ).length;
   const uslAvailablePct = uslItems.length === 0 ? 0 : Math.round((availableCount / uslItems.length) * 100);
 
   if (state === "loading") {
@@ -106,7 +153,11 @@ export default function App() {
       )}
 
       {state === "onboarding" && (
-        <Onboarding onComplete={handleOnboardingComplete} onBack={() => setState("welcome")} />
+        <Onboarding
+          onComplete={handleOnboardingComplete}
+          onBack={changingLocation ? () => setState(locationReturnState) : () => setState("welcome")}
+          changingLocation={changingLocation}
+        />
       )}
 
       {state === "home" && location && (
@@ -124,9 +175,32 @@ export default function App() {
           location={location}
           checkoutEnabled={checkoutEnabled}
           uslAvailablePct={uslAvailablePct}
+          initialCategory={shopCategory}
+          onCategoryApplied={() => setShopCategory("all")}
           onGoToCheckout={() => setState("checkout")}
           onGoToUsl={() => setState("home")}
+          onChangeLocation={() => handleChangeLocation("shop")}
         />
+      )}
+
+      {state === "categories" && location && (
+        <CategoriesPage
+          location={location}
+          onChangeLocation={() => handleChangeLocation("categories")}
+          onSelectCategory={handleSelectCategory}
+        />
+      )}
+
+      {state === "orders" && location && (
+        <OrdersPage
+          location={location}
+          onChangeLocation={() => handleChangeLocation("orders")}
+          onStartShopping={() => setState("shop")}
+        />
+      )}
+
+      {state === "account" && location && (
+        <AccountPage location={location} onChangeLocation={() => handleChangeLocation("account")} />
       )}
 
       {state === "checkout" && location && (
@@ -151,11 +225,7 @@ export default function App() {
       )}
 
       {showBottomNav && (
-        <BottomNav
-          active={state === "shop" ? "shop" : "list"}
-          onNavigate={navigateTab}
-          listHasItems={uslItems.length > 0}
-        />
+        <BottomNav active={navActive} onNavigate={navigateTab} listHasItems={uslItems.length > 0} />
       )}
     </div>
   );

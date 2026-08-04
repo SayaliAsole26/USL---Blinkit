@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.db.models import CatalogProduct, ProductAvailability
@@ -8,15 +9,8 @@ class MockCatalogAdapter(CatalogAdapter):
     def __init__(self, db: Session):
         self.db = db
 
-    def search(self, query: str, limit: int = 20) -> list[CatalogProductDTO]:
-        pattern = f"%{query.lower()}%"
-        rows = (
-            self.db.query(CatalogProduct)
-            .filter(CatalogProduct.product_name.ilike(pattern))
-            .limit(limit)
-            .all()
-        )
-        return [_to_dto(r) for r in rows]
+    def search(self, query: str, limit: int = 20, pincode: str | None = None) -> list[CatalogProductDTO]:
+        return self.list_products(query=query, limit=limit, pincode=pincode)
 
     def get_by_sku(self, sku_id: str) -> CatalogProductDTO | None:
         row = self.db.query(CatalogProduct).filter(CatalogProduct.sku_id == sku_id).first()
@@ -27,12 +21,34 @@ class MockCatalogAdapter(CatalogAdapter):
         category: str | None = None,
         query: str | None = None,
         limit: int = 50,
+        pincode: str | None = None,
     ) -> list[CatalogProductDTO]:
         rows_query = self.db.query(CatalogProduct)
+        if pincode:
+            rows_query = (
+                rows_query.join(
+                    ProductAvailability,
+                    ProductAvailability.sku_id == CatalogProduct.sku_id,
+                )
+                .filter(
+                    ProductAvailability.pincode == pincode,
+                    ProductAvailability.availability_status == "available",
+                )
+                .distinct()
+            )
         if category:
             rows_query = rows_query.filter(CatalogProduct.category == category)
         if query:
-            rows_query = rows_query.filter(CatalogProduct.product_name.ilike(f"%{query.lower()}%"))
+            terms = [t.strip().lower() for t in query.split() if t.strip()]
+            for term in terms:
+                pattern = f"%{term}%"
+                rows_query = rows_query.filter(
+                    or_(
+                        CatalogProduct.product_name.ilike(pattern),
+                        CatalogProduct.category.ilike(pattern),
+                        CatalogProduct.sku_id.ilike(pattern),
+                    )
+                )
         rows = rows_query.order_by(CatalogProduct.category, CatalogProduct.product_name).limit(limit).all()
         return [_to_dto(r) for r in rows]
 

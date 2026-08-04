@@ -23,14 +23,21 @@ export function setAuthToken(token: string): void {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getAuthToken()}`,
-      ...options.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getAuthToken()}`,
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_URL}. Check VITE_API_URL on Vercel and that the Railway backend is running.`
+    );
+  }
 
   if (response.status === 204) {
     return undefined as T;
@@ -76,10 +83,11 @@ export const api = {
   getAdminMatches: () => request<AdminMatchesResponse>("/v1/admin/matches"),
   getPipelineMetrics: () => request<PipelineMetricsResponse>("/v1/admin/pipeline/metrics"),
   getFlags: () => request<FeatureFlagsResponse>("/v1/flags"),
-  listCatalogProducts: (params?: { category?: string; q?: string }) => {
+  listCatalogProducts: (params?: { category?: string; q?: string; pincode?: string }) => {
     const search = new URLSearchParams();
     if (params?.category) search.set("category", params.category);
     if (params?.q) search.set("q", params.q);
+    if (params?.pincode) search.set("pincode", params.pincode);
     const q = search.toString();
     return request<CatalogProductsResponse>(`/v1/integrations/catalog/products${q ? `?${q}` : ""}`);
   },

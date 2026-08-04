@@ -23,11 +23,12 @@ router = APIRouter(prefix="/integrations", tags=["integrations"])
 def list_catalog_products(
     category: str | None = Query(default=None),
     q: str | None = Query(default=None, min_length=1),
+    pincode: str | None = Query(default=None, pattern=r"^\d{6}$"),
     limit: int = Query(default=50, le=100),
     db: Session = Depends(get_db),
 ):
     adapter = MockCatalogAdapter(db)
-    products = adapter.list_products(category=category, query=q, limit=limit)
+    products = adapter.list_products(category=category, query=q, limit=limit, pincode=pincode)
     return {"count": len(products), "products": [p.__dict__ for p in products]}
 
 

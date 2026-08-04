@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, CatalogProduct, LocationResponse } from "../api/client";
 import Icon from "../components/layout/Icon";
+import LocationBanner from "../components/layout/LocationBanner";
 import CompletionScore from "../components/ui/CompletionScore";
+import ProductImage from "../components/ui/ProductImage";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 
 type Props = {
   location: LocationResponse;
   checkoutEnabled?: boolean;
   uslAvailablePct?: number;
+  initialCategory?: string;
+  onCategoryApplied?: () => void;
   onGoToCheckout: () => void;
   onGoToUsl: () => void;
+  onChangeLocation: () => void;
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -25,18 +31,29 @@ export default function ShopHome({
   location,
   checkoutEnabled = false,
   uslAvailablePct = 0,
+  initialCategory = "all",
+  onCategoryApplied,
   onGoToCheckout,
   onGoToUsl,
+  onChangeLocation,
 }: Props) {
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<Array<{ sku_id: string; quantity: number }>>([]);
-  const [category, setCategory] = useState<string>("all");
+  const [category, setCategory] = useState<string>(initialCategory);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [loading, setLoading] = useState(true);
   const [addingSku, setAddingSku] = useState<string | null>(null);
   const [addedSkus, setAddedSkus] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialCategory !== "all") {
+      setCategory(initialCategory);
+      onCategoryApplied?.();
+    }
+  }, [initialCategory, onCategoryApplied]);
 
   const loadShop = useCallback(async () => {
     setLoading(true);
@@ -45,7 +62,8 @@ export default function ShopHome({
       const [catalog, cart] = await Promise.all([
         api.listCatalogProducts({
           category: category === "all" ? undefined : category,
-          q: search.trim() || undefined,
+          q: debouncedSearch.trim() || undefined,
+          pincode: location.pincode,
         }),
         api.getCart(),
       ]);
@@ -56,13 +74,13 @@ export default function ShopHome({
     } finally {
       setLoading(false);
     }
-  }, [category, search]);
+  }, [category, debouncedSearch, location.pincode]);
 
   useEffect(() => {
-    api.listCatalogProducts().then((catalog) => {
+    api.listCatalogProducts({ pincode: location.pincode }).then((catalog) => {
       setAllCategories(Array.from(new Set(catalog.products.map((p) => p.category))).sort());
     });
-  }, []);
+  }, [location.pincode]);
 
   useEffect(() => {
     loadShop();
@@ -98,20 +116,7 @@ export default function ShopHome({
       <header className="sticky top-0 z-40 bg-brand-yellow transition-shadow">
         <div className="flex flex-col gap-3 px-4 pb-3 pt-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                <Icon name="location_on" filled className="text-primary" />
-              </div>
-              <div>
-                <span className="text-sm font-bold leading-tight">Delivering to</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-base font-extrabold leading-tight">
-                    {location.pincode} - {location.city}
-                  </span>
-                  <Icon name="keyboard_arrow_down" className="text-sm" />
-                </div>
-              </div>
-            </div>
+            <LocationBanner location={location} onChangeLocation={onChangeLocation} />
             <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
               <Icon name="notifications" />
             </button>
@@ -192,10 +197,18 @@ export default function ShopHome({
 
         <section>
           <div className="mb-4 flex items-center justify-between px-4">
-            <h2 className="text-base font-bold">Bestsellers</h2>
+            <h2 className="text-base font-bold">
+              {debouncedSearch.trim() ? `Results for "${debouncedSearch.trim()}"` : "Bestsellers"}
+            </h2>
+            <span className="text-xs text-on-surface-variant">{location.city}</span>
           </div>
           {loading && <p className="px-4 text-sm text-on-surface-variant">Loading products…</p>}
           {error && <p className="px-4 text-sm text-error">{error}</p>}
+          {!loading && products.length === 0 && (
+            <p className="px-4 text-sm text-on-surface-variant">
+              No products found{debouncedSearch.trim() ? ` for "${debouncedSearch.trim()}"` : ""} at pincode {location.pincode}.
+            </p>
+          )}
           <div className="hide-scrollbar flex gap-4 overflow-x-auto px-4 pb-2">
             {products.map((product) => {
               const inCart = cartItems.some((c) => c.sku_id === product.sku_id);
@@ -203,9 +216,7 @@ export default function ShopHome({
               return (
                 <div key={product.sku_id} className="flex min-w-[140px] flex-col gap-2">
                   <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-border-subtle bg-white p-2">
-                    {product.image_url && (
-                      <img src={product.image_url} alt={product.product_name} className="w-3/4 object-contain" />
-                    )}
+                    <ProductImage product={product} />
                   </div>
                   <div className="space-y-0.5">
                     <p className="truncate text-sm font-medium">{product.product_name}</p>

@@ -6,9 +6,10 @@ import { DELIVERY_LOCATIONS, DeliveryLocation } from "../data/deliveryLocations"
 type Props = {
   onComplete: () => void;
   onBack?: () => void;
+  changingLocation?: boolean;
 };
 
-export default function Onboarding({ onComplete, onBack }: Props) {
+export default function Onboarding({ onComplete, onBack, changingLocation }: Props) {
   const [selected, setSelected] = useState<DeliveryLocation | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,8 +42,12 @@ export default function Onboarding({ onComplete, onBack }: Props) {
           </button>
         )}
         <div>
-          <h1 className="text-lg font-bold text-primary">Choose delivery location</h1>
-          <p className="text-xs text-on-surface-variant">Select a city with catalog coverage</p>
+          <h1 className="text-lg font-bold text-primary">
+            {changingLocation ? "Change delivery location" : "Choose delivery location"}
+          </h1>
+          <p className="text-xs text-on-surface-variant">
+            {changingLocation ? "Pick a new pincode from the demo dataset" : "Select a city with catalog coverage"}
+          </p>
         </div>
       </header>
 

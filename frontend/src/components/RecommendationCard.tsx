@@ -1,5 +1,6 @@
 import { CheckoutRecommendation } from "../api/client";
 import Icon from "./layout/Icon";
+import ProductImage from "./ui/ProductImage";
 
 type Props = {
   recommendation: CheckoutRecommendation;
@@ -23,13 +24,15 @@ export default function RecommendationCard({ recommendation, onAction, loading }
   return (
     <article className="flex gap-4 rounded-xl border border-border-subtle bg-surface-container-lowest p-3 transition-all active:scale-[0.98] card-shadow">
       <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-surface-container-low">
-        {recommendation.image_url ? (
-          <img src={recommendation.image_url} alt={recommendation.product_name} className="h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <Icon name="inventory_2" className="text-on-surface-variant" />
-          </div>
-        )}
+        <ProductImage
+          product={{
+            sku_id: recommendation.sku_id,
+            product_name: recommendation.product_name,
+            category: recommendation.reason_type,
+            image_url: recommendation.image_url,
+          }}
+          className="h-full w-full object-cover"
+        />
       </div>
       <div className="flex flex-1 flex-col justify-between">
         <div>

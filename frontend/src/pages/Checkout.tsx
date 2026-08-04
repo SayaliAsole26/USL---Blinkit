@@ -19,26 +19,37 @@ export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props)
   const [actionLoading, setActionLoading] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
+  const [recError, setRecError] = useState("");
 
   const productBySku = useMemo(() => new Map(products.map((p) => [p.sku_id, p])), [products]);
 
   const loadCheckout = useCallback(async () => {
     setLoading(true);
     setError("");
+    setRecError("");
     try {
-      const [cart, catalog] = await Promise.all([api.getCart(), api.listCatalogProducts()]);
+      const [cart, catalog] = await Promise.all([
+        api.getCart(),
+        api.listCatalogProducts({ pincode: location.pincode }),
+      ]);
       setCartItems(cart.items);
       setProducts(catalog.products);
-      const cartSkus = cart.items.map((i) => i.sku_id).join(",");
-      const data = await api.getCheckoutRecommendations(cartSkus || undefined);
-      setCheckoutSessionId(data.checkout_session_id);
-      setRecommendations(data.recommendations);
+
+      try {
+        const cartSkus = cart.items.map((i) => i.sku_id).join(",");
+        const data = await api.getCheckoutRecommendations(cartSkus || undefined);
+        setCheckoutSessionId(data.checkout_session_id);
+        setRecommendations(data.recommendations);
+      } catch (err) {
+        setRecommendations([]);
+        setRecError(err instanceof Error ? err.message : "Recommendations unavailable");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load checkout recommendations");
+      setError(err instanceof Error ? err.message : "Failed to load checkout");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [location.pincode]);
 
   useEffect(() => {
     loadCheckout();
@@ -62,7 +73,7 @@ export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props)
         setRecommendations((prev) => prev.filter((r) => r.recommendation_id !== rec.recommendation_id));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Action failed");
+      setRecError(err instanceof Error ? err.message : "Action failed");
     } finally {
       setActionLoading(false);
     }
@@ -95,7 +106,7 @@ export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props)
           <div>
             <h1 className="text-lg font-bold">My Cart ({itemCount} items)</h1>
             <p className="text-xs text-on-surface-variant">
-              Delivering to {location.pincode} - {location.city}
+              Delivering to {location.pincode} - {location.city}, {location.state}
             </p>
           </div>
         </div>
@@ -139,7 +150,10 @@ export default function CheckoutPage({ location, onBack, onOrderPlaced }: Props)
 
         {loading && <p className="text-sm text-on-surface-variant">Loading recommendations…</p>}
         {error && <p className="text-sm text-error">{error}</p>}
-        {!loading && recommendations.length === 0 && (
+        {recError && !loading && (
+          <p className="rounded-xl bg-error-container/30 p-3 text-sm text-error">{recError}</p>
+        )}
+        {!loading && !recError && recommendations.length === 0 && (
           <p className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">
             No checkout recommendations right now — add USL items with catalog matches.
           </p>
