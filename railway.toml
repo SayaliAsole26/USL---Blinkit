@@ -6,7 +6,7 @@ watchPatterns = ["backend/**", "data/**"]
 [deploy]
 startCommand = "/app/docker-entrypoint.sh"
 healthcheckPath = "/health"
-healthcheckTimeout = 120
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 
 # Celery worker (duplicate this service in Railway, override start command):

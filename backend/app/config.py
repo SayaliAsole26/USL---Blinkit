@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def _normalize_database_url(cls, value: str) -> str:
+        if not value or not str(value).strip():
+            # Allow API boot for /health when Railway DATABASE_URL is missing (misconfigured).
+            return "postgresql://127.0.0.1:5432/usl"
         return normalize_database_url(value)
 
     @property

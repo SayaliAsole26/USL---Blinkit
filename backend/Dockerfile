@@ -11,6 +11,12 @@ COPY data/ /app/data/
 
 ENV PYTHONPATH=/app
 ENV PORT=8000
+# Production-friendly defaults (override in Railway dashboard)
+ENV EMBEDDINGS_ENABLED=false
+ENV MEILI_ENABLED=false
+ENV ADMIN_DEBUG_ENABLED=false
+ENV RUN_MIGRATIONS_ON_STARTUP=false
+ENV SEED_CATALOG_ON_STARTUP=false
 
 RUN chmod +x /app/docker-entrypoint.sh /app/start-worker.sh
 
