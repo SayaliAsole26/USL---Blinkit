@@ -72,12 +72,7 @@ export default function Onboarding({ onComplete, onBack }: Props) {
                     </p>
                     <p className="mt-0.5 text-xs text-on-surface-variant">{location.label}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="rounded-full bg-surface-container-high px-2.5 py-1 text-xs font-medium text-on-surface-variant">
-                      {location.productCount} products
-                    </span>
-                    {isSelected && <Icon name="check_circle" className="text-primary" />}
-                  </div>
+                  {isSelected && <Icon name="check_circle" className="text-primary" />}
                 </button>
               </li>
             );

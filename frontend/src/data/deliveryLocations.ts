@@ -5,7 +5,6 @@ export type DeliveryLocation = {
   state: string;
   pincode: string;
   label: string;
-  productCount: number;
 };
 
 export const DELIVERY_LOCATIONS: DeliveryLocation[] = [
@@ -15,7 +14,6 @@ export const DELIVERY_LOCATIONS: DeliveryLocation[] = [
     state: "Karnataka",
     pincode: "560001",
     label: "Bangalore Central",
-    productCount: 14,
   },
   {
     id: "blr-560034",
@@ -23,7 +21,6 @@ export const DELIVERY_LOCATIONS: DeliveryLocation[] = [
     state: "Karnataka",
     pincode: "560034",
     label: "Bangalore Koramangala",
-    productCount: 10,
   },
   {
     id: "del-110001",
@@ -31,7 +28,6 @@ export const DELIVERY_LOCATIONS: DeliveryLocation[] = [
     state: "Delhi",
     pincode: "110001",
     label: "New Delhi Central",
-    productCount: 11,
   },
   {
     id: "mum-400001",
@@ -39,6 +35,5 @@ export const DELIVERY_LOCATIONS: DeliveryLocation[] = [
     state: "Maharashtra",
     pincode: "400001",
     label: "Mumbai Fort",
-    productCount: 7,
   },
 ];
