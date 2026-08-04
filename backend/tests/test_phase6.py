@@ -37,6 +37,7 @@ def test_checkout_cache_round_trip(monkeypatch, phase6_settings):
     mock_client.get.side_effect = lambda k: store.get(k)
     mock_client.setex.side_effect = lambda k, ttl, val: store.__setitem__(k, val)
     monkeypatch.setattr("app.services.checkout_cache.get_redis_client", lambda _s: mock_client)
+    monkeypatch.setattr("app.services.checkout_cache.is_redis_available", lambda _s=None: True)
 
     key = "checkout:recs:test"
     payload = {"recommendations": [], "shortlist_size": 0, "latency_ms": 12}
