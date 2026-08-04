@@ -8,18 +8,31 @@ export function normalizeApiBaseUrl(raw: string): string {
 }
 
 const API_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL || "http://localhost:8000");
-const AUTH_TOKEN_KEY = "usl_auth_token";
+const USER_ID_KEY = "usl_user_id";
 
 export function getApiBaseUrl(): string {
   return API_URL;
 }
 
-export function getAuthToken(): string {
-  return localStorage.getItem(AUTH_TOKEN_KEY) || "dev";
+/** One unique user per browser — each gets their own USL in the backend. */
+export function ensureUserSession(): string {
+  let userId = localStorage.getItem(USER_ID_KEY);
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem(USER_ID_KEY, userId);
+    localStorage.removeItem("usl_welcome_seen");
+  }
+  return userId;
 }
 
-export function setAuthToken(token: string): void {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+export function getAuthToken(): string {
+  return ensureUserSession();
+}
+
+export function resetUserSession(): string {
+  const userId = crypto.randomUUID();
+  localStorage.setItem(USER_ID_KEY, userId);
+  return userId;
 }
 
 function sleep(ms: number): Promise<void> {

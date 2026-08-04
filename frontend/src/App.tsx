@@ -9,7 +9,7 @@ import OrdersPage from "./pages/OrdersPage";
 import ShopHome from "./pages/ShopHome";
 import UslHome from "./pages/UslHome";
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
-import { api, LocationResponse, UslItemResponse } from "./api/client";
+import { api, ensureUserSession, LocationResponse, UslItemResponse } from "./api/client";
 import BottomNav, { NavTab } from "./components/layout/BottomNav";
 
 type AppState =
@@ -54,6 +54,8 @@ export default function App() {
       return;
     }
 
+    ensureUserSession();
+
     Promise.all([api.getLocation().catch(() => null), api.getFlags().catch(() => null)]).then(([loc, flags]) => {
       setCheckoutEnabled(flags?.usl_checkout_recommendations ?? false);
       if (!loc) {
@@ -63,7 +65,7 @@ export default function App() {
       }
       setLocation(loc);
       loadUslMeta();
-      setState("shop");
+      setState("home");
     });
   }, [loadUslMeta]);
 
